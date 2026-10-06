@@ -37,7 +37,7 @@
         <button class="icon-btn" onclick="downloadReport()" title="Download PDF Report"><i class="ti ti-download"></i></button>
         <button class="icon-btn" onclick="refreshAll()" title="Refresh data"><i class="ti ti-refresh"></i></button>
         <button class="icon-btn" onclick="openSettings()" title="Settings"><i class="ti ti-settings"></i></button>
-        <a href="/logout" style="text-decoration:none">
+        <a href="javascript:void(0)" onclick="localStorage.removeItem('bwe_token'); window.location.href='/login.html';" style="text-decoration:none">
           <button class="icon-btn danger" title="Sign out"><i class="ti ti-logout"></i></button>
         </a>
       </div>
@@ -56,7 +56,7 @@
       <button class="icon-btn" onclick="downloadReport()" title="Download PDF Report"><i class="ti ti-download"></i></button>
       <button class="icon-btn" onclick="refreshAll()" title="Refresh data"><i class="ti ti-refresh"></i></button>
       <button class="icon-btn" onclick="openSettings()" title="Settings"><i class="ti ti-settings"></i></button>
-      <a href="/logout" style="text-decoration:none">
+      <a href="javascript:void(0)" onclick="localStorage.removeItem('bwe_token'); window.location.href='/login.html';" style="text-decoration:none">
         <button class="icon-btn danger" title="Sign out"><i class="ti ti-logout"></i></button>
       </a>
     </div>
