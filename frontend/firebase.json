@@ -2,6 +2,7 @@
   "hosting": {
     "public": ".",
     "ignore": ["firebase.json", "README.md"],
-    "cleanUrls": true
+    "cleanUrls": true, "redirects": [ { "source": "/login.html", "destination": "/dashboard.html", "type": 301 }, { "source": "/login", "destination": "/dashboard.html", "type": 301 } ]
   }
 }
+
