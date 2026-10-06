@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BinaryWebEngine | Documentation</title>
+  <!-- SEO Canonical Link -->
+  <link rel="canonical" href="https://bwe.equisaas.com/docs.html" />
+  <meta name="description" content="Official documentation and API reference for the BinaryWebEngine Secure Infrastructure.">
+  <link rel="icon" href="/static/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --maroon-dk: #3A0000;
+      --maroon: #5C0000;
+      --maroon-bright: #8B0000;
+      --maroon-lt: #A52A2A;
+      --maroon-accent: #C0392B;
+      --blk: #080808;
+      --blk-lt: #121212;
+      --blk-card: #161616;
+      --blk-brd: #333333;
+      --text-pr: #F0EDE8;
+      --text-sec: #C8C2BC;
+      --text-muted: #7A7470;
+      --radius: 12px;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--blk);
+      color: var(--text-pr);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky; top: 0; width: 100%;
+      padding: 15px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(8, 8, 8, 0.9);
+      border-bottom: 1px solid var(--blk-brd);
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 18px; font-weight: 700;
+      text-decoration: none; color: var(--text-pr);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-links a { color: var(--text-sec); text-decoration: none; font-size: 14px; margin-left: 20px; }
+    .nav-links a:hover { color: var(--text-pr); }
+
+    .layout {
+      display: flex;
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .sidebar {
+      width: 280px;
+      border-right: 1px solid var(--blk-brd);
+      padding: 40px 20px;
+      position: sticky;
+      top: 61px;
+      height: calc(100vh - 61px);
+      overflow-y: auto;
+    }
+    .sidebar h3 { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 0.05em; }
+    .sidebar ul { list-style: none; margin-bottom: 30px; }
+    .sidebar li { margin-bottom: 8px; }
+    .sidebar a { color: var(--text-sec); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+    .sidebar a:hover, .sidebar a.active { color: var(--maroon-accent); font-weight: 500; }
+
+    .content {
+      flex: 1;
+      padding: 60px 80px;
+    }
+    .content h1 { font-size: 40px; margin-bottom: 16px; letter-spacing: -0.02em; }
+    .content h2 { font-size: 24px; margin-top: 40px; margin-bottom: 16px; border-bottom: 1px solid var(--blk-brd); padding-bottom: 8px; }
+    .content h3 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; }
+    .content p { color: var(--text-sec); margin-bottom: 16px; font-size: 16px; }
+    
+    .code-block {
+      background: var(--blk-card); border: 1px solid var(--blk-brd);
+      border-radius: var(--radius); padding: 20px;
+      font-family: var(--font-mono); font-size: 13px; color: var(--text-sec);
+      overflow-x: auto; margin-bottom: 24px;
+    }
+
+    .alert {
+      padding: 16px 20px; border-radius: var(--radius); margin-bottom: 24px;
+      border-left: 4px solid var(--maroon-accent);
+      background: rgba(192,57,43,0.05);
+    }
+    .alert strong { color: var(--text-pr); }
+
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-brand">BinaryWebEngine Docs</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/login.html">Portal Login</a>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h3>Getting Started</h3>
+      <ul>
+        <li><a href="#intro" class="active">Introduction</a></li>
+        <li><a href="#setup">Installation</a></li>
+      </ul>
+      <h3>API Reference</h3>
+      <ul>
+        <li><a href="#auth">Authentication</a></li>
+        <li><a href="#alerts">Alerts API</a></li>
+        <li><a href="#ai">Intelligence Integration</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+      <h1 id="intro">Introduction</h1>
+      <p>Welcome to the official documentation for <strong>BinaryWebEngine</strong>, the foundational layer for secure AI operations built for the International Builders Congress (InfraSphere AI).</p>
+      
+      <div class="alert">
+        <strong>Note:</strong> This documentation is a work in progress. API endpoints are subject to change before the final Congress submission.
+      </div>
+
+      <h2 id="setup">Installation & Deployment</h2>
+      <p>The backend is powered by Cloudflare Workers, D1 database, and KV. The frontend is hosted on Firebase.</p>
+      
+      <div class="code-block">
+# 1. Install Wrangler CLI
+npm install -g wrangler
+
+# 2. Deploy Worker
+npx wrangler deploy
+
+# 3. Deploy Frontend
+npx firebase deploy --only hosting
+      </div>
+
+      <h2 id="auth">Authentication</h2>
+      <p>All API endpoints require a valid session token passed via the <code>X-Session-Token</code> header or <code>bwe_session</code> cookie.</p>
+      
+      <h2 id="Analysis">Intelligence Integration</h2>
+      <p>BinaryWebEngine integrates NVIDIA's APIs to provide real-time alert explanations. You must inject the <code>NVIDIA_API_KEY</code> via Cloudflare secrets to enable this feature.</p>
+      <div class="code-block">
+echo "your-api-key" | npx wrangler secret put NVIDIA_API_KEY
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>

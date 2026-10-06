@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BinaryWebEngine - Enterprise Security Platform Documentation</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2333;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --mrn: #800020;
+  --mrn-lt: #a02840;
+  --gold: #eab308;
+  --green: #22c55e;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --brd: #1c2333;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  font-size: 15px;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: #0a0e14; border-bottom: 1px solid var(--brd);
+}
+.topbar h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.02em; }
+.topbar h1 span { color: var(--mrn); }
+.topbar .ver { font-size: 11px; color: var(--text3); margin-left: 8px; }
+.topbar .badge {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 4px;
+  background: var(--mrn); color: #fff; font-weight: 700;
+}
+
+/* ─── LAYOUT ─── */
+.wrap { display: flex; max-width: 1400px; margin: 0 auto; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 280px; flex-shrink: 0;
+  position: sticky; top: 64px; height: calc(100vh - 64px);
+  overflow-y: auto; padding: 20px 0;
+  border-right: 1px solid var(--brd);
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
+.sidebar .lbl {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text3); padding: 16px 24px 6px; font-weight: 600;
+}
+.sidebar a {
+  display: block; padding: 7px 24px; font-size: 13px;
+  color: var(--text2); text-decoration: none;
+  border-left: 2px solid transparent; transition: .15s;
+}
+.sidebar a:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+.sidebar a.active { color: var(--mrn); border-left-color: var(--mrn); font-weight: 600; }
+.sidebar a.sub { padding-left: 36px; font-size: 12px; }
+
+/* ─── CONTENT ─── */
+.content { flex: 1; min-width: 0; padding: 40px 48px 80px; }
+.content h2 {
+  font-size: 26px; font-weight: 700; margin: 48px 0 16px;
+  padding-bottom: 10px; border-bottom: 2px solid var(--mrn);
+}
+.content h2:first-child { margin-top: 0; }
+.content h3 { font-size: 18px; font-weight: 600; margin: 32px 0 12px; color: #cbd5e1; }
+.content h4 { font-size: 15px; font-weight: 600; margin: 24px 0 8px; color: var(--text2); }
+.content p { margin-bottom: 12px; color: var(--text2); }
+.content ul, .content ol { margin: 8px 0 16px 20px; color: var(--text2); }
+.content li { margin-bottom: 4px; }
+.content strong { color: var(--text); font-weight: 600; }
+.content code {
+  font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px;
+  background: var(--bg2); padding: 1px 6px; border-radius: 4px;
+  color: var(--gold); border: 1px solid var(--brd);
+}
+.content pre {
+  background: var(--bg2); border: 1px solid var(--brd);
+  border-radius: 8px; padding: 16px 20px; margin: 12px 0 20px;
+  overflow-x: auto; font-size: 13px; line-height: 1.6; color: var(--text2);
+}
+.content pre code { background: none; border: none; padding: 0; color: inherit; }
+.content .note {
+  background: rgba(59,130,246,0.08); border-left: 3px solid var(--blue);
+  border-radius: 6px; padding: 12px 16px; margin: 12px 0 20px; font-size: 13px;
+  color: var(--text2);
+}
+.content .warn {
+  background: rgba(234,179,8,0.08); border-left: 3px solid var(--gold);
+  border-radius: 6px; padding: 12px 16px; margin: 12px 0 20px; font-size: 13px;
+  color: var(--text2);
+}
+.content .tip {
+  background: rgba(34,197,94,0.08); border-left: 3px solid var(--green);
+  border-radius: 6px; padding: 12px 16px; margin: 12px 0 20px; font-size: 13px;
+  color: var(--text2);
+}
+.content table {
+  width: 100%; border-collapse: collapse; margin: 12px 0 20px;
+  font-size: 13px;
+}
+.content th {
+  background: var(--bg2); color: var(--text2); font-weight: 600;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--brd);
+}
+.content td { padding: 10px 12px; border-bottom: 1px solid var(--brd); color: var(--text2); }
+.content tr:hover td { background: var(--bg2); }
+.content .tag {
+  display: inline-block; padding: 1px 8px; border-radius: 3px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; vertical-align: middle;
+}
+.tag-pro { background: linear-gradient(135deg,#800020,#a02840); color: #fff; }
+.tag-free { background: rgba(34,197,94,0.15); color: var(--green); }
+.tag-ai { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.content .sect-card {
+  background: var(--bg2); border: 1px solid var(--brd); border-radius: 8px;
+  padding: 20px; margin: 12px 0 20px;
+}
+.content .sect-card h4 { margin-top: 0; }
+.content .feature-grid {
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+  gap: 12px; margin: 12px 0 20px;
+}
+.content .feature-card {
+  background: var(--bg2); border: 1px solid var(--brd); border-radius: 8px;
+  padding: 16px; transition: .15s;
+}
+.content .feature-card:hover { border-color: var(--text3); }
+.content .feature-card h4 { margin: 0 0 6px; font-size: 13px; }
+.content .feature-card p { margin: 0; font-size: 12px; }
+.sev-crit { color: var(--red); }
+.sev-high { color: #f97316; }
+.sev-med { color: var(--gold); }
+.sev-low { color: var(--green); }
+
+.mermaid { background: var(--bg2); border-radius: 8px; padding: 16px; margin: 12px 0 20px; overflow-x: auto; }
+.mermaid svg { max-width: 100%; height: auto; }
+
+@media(max-width:1024px) {
+  .sidebar { display: none; }
+  .content { padding: 24px 20px 60px; }
+  .topbar { padding: 0 16px; }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    background: '#161b22',
+    primaryColor: '#1c2333',
+    primaryBorderColor: '#800020',
+    primaryTextColor: '#e2e8f0',
+    lineColor: '#94a3b8',
+    secondaryColor: '#161b22',
+    tertiaryColor: '#1c2333',
+    fontSize: '14px'
+  }
+});
+</script>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <h1><span>Binary</span>WebEngine <span class="ver">v1.0</span></h1>
+  <span class="badge">Closed Source &middot; Enterprise</span>
+</div>
+
+<div class="wrap">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="lbl">Getting Started</div>
+  <a href="#overview" class="active">Overview</a>
+  <a href="#requirements" class="sub">System Requirements</a>
+  <a href="#quickstart" class="sub">Quick Start</a>
+  <a href="#cli" class="sub">CLI Reference</a>
+
+  <div class="lbl">Dashboard</div>
+  <a href="#dashboard-overview">Overview Tab</a>
+  <a href="#dashboard-alerts">Alerts &amp; Incidents</a>
+  <a href="#dashboard-killchain">Kill Chain</a>
+  <a href="#dashboard-waf">WAF Dashboard</a>
+  <a href="#dashboard-intel">Threat Intelligence</a>
+  <a href="#dashboard-hardening">Hardening</a>
+  <a href="#dashboard-audit">Audit Trail</a>
+  <a href="#dashboard-rules">Alert Rules</a>
+  <a href="#dashboard-reports">Reports</a>
+  <a href="#dashboard-processes">Processes</a>
+  <a href="#dashboard-network">Network</a>
+  <a href="#dashboard-files">File Monitor</a>
+  <a href="#dashboard-logins">Login Monitor</a>
+  <a href="#dashboard-fleet">Fleet</a>
+
+  <div class="lbl">Detection Modules</div>
+  <a href="#waf">Web Application Firewall</a>
+  <a href="#file-monitor">File Integrity Monitor</a>
+  <a href="#process-monitor">Process Monitor</a>
+  <a href="#network-monitor">Network Monitor</a>
+  <a href="#malware-scanner">Malware Scanner</a>
+  <a href="#login-monitor">Login Monitor</a>
+  <a href="#anomaly">Anomaly Detection</a>
+  <a href="#killchain">Kill Chain &amp; MITRE</a>
+  <a href="#correlation">Correlation Engine</a>
+
+  <div class="lbl">Intelligence &amp; AI</div>
+  <a href="#intel">Threat Intelligence</a>
+  <a href="#ai-assistant">Threat Intel Assistant</a>
+  <a href="#false-positive">False Positive Advisor</a>
+  <a href="#ja3">JA3 Fingerprinting</a>
+
+  <div class="lbl">Management</div>
+  <a href="#fleet">Fleet Management</a>
+  <a href="#siem">SIEM Forwarding</a>
+  <a href="#soar">SOAR &amp; Notifications</a>
+  <a href="#compliance">Compliance Reports</a>
+  <a href="#config">Configuration</a>
+
+  <div class="lbl">Operations</div>
+  <a href="#api">API Reference</a>
+  <a href="#env">Environment Variables</a>
+  <a href="#deployment">Deployment</a>
+  <a href="#troubleshooting">Troubleshooting</a>
+  <a href="#license-system">Licensing</a>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- ─── OVERVIEW ─── -->
+<h2 id="overview">Overview</h2>
+<p>
+<strong>BinaryWebEngine</strong> is an all-in-one security monitoring platform for Linux.
+It bundles WAF, HIDS, NIDS, file integrity monitoring, malware scanning, ML anomaly
+detection, kill chain reconstruction, and threat intelligence into a single engine
+with a real-time dashboard.
+</p>
+<p>
+Monitor one server or a fleet of machines from a single dashboard. No separate SIEM
+appliance, no third-party connectors, no complex integrations.
+</p>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h4>Web Application Firewall</h4>
+    <p>186 regex signatures across 25 attack categories. Real-time payload inspection with rate limiting and auto-block.</p>
+  </div>
+  <div class="feature-card">
+    <h4>File Integrity Monitor</h4>
+    <p>SHA-256 baseline, inotify real-time change detection, webshell scanning on modification events.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Process &amp; Network Monitoring</h4>
+    <p>Suspicious process trees, cryptominer detection, reverse shell identification, live connection tables.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Kill Chain Reconstruction</h4>
+    <p>Lockheed Martin 7-stage + MITRE ATT&CK mapping. Composites low-severity events into high-severity chain alerts.</p>
+  </div>
+  <div class="feature-card">
+    <h4>ML Anomaly Detection</h4>
+    <p>Isolation Forest, rolling statistics, LSTM sequence profiling, Page-Hinkley concept drift detection.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Threat Intelligence</h4>
+    <p>AbuseIPDB reputation lookups with CIDR suppression, automatic blocking by abuse score threshold.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Threat Intel Assistant</h4>
+    <p>NVIDIA/Gemini/OpenAI-powered alert explanations, conversational chat with full system context, false positive scoring.</p>
+  </div>
+  <div class="feature-card">
+    <h4>Fleet Management</h4>
+    <p>Hub &amp; Spoke architecture with mTLS. Centrally monitor multiple servers from a single dashboard. <span class="tag tag-pro">PRO</span></p>
+  </div>
+</div>
+
+<h3 id="requirements">System Requirements</h3>
+<table>
+  <tr><th>Component</th><th>Minimum</th><th>Recommended</th></tr>
+  <tr><td>OS</td><td>Linux (Ubuntu 20.04+, Debian 11+, RHEL 8+)</td><td>Ubuntu 22.04 LTS</td></tr>
+  <tr><td>CPU</td><td>1 vCPU</td><td>2+ vCPU</td></tr>
+  <tr><td>RAM</td><td>512 MB</td><td>2 GB+</td></tr>
+  <tr><td>Disk</td><td>500 MB free</td><td>5 GB+ (for logs, quarantine, reports)</td></tr>
+  <tr><td>Python</td><td>3.10+</td><td>3.11+</td></tr>
+  <tr><td>Database</td><td>SQLite (embedded)</td><td>PostgreSQL 14+ (production fleets)</td></tr>
+</table>
+
+<h3 id="quickstart">Quick Start</h3>
+<p>The fastest way to evaluate BinaryWebEngine is with the single-file executable:</p>
+<pre><code># Download the executable
+chmod +x bwe
+
+# Start with demo data
+./bwe --demo
+
+# Open browser to http://localhost:8000
+# Login credentials are displayed on first run
+# and saved to credentials.txt</code></pre>
+<p>For development or custom deployments, use the Python source:</p>
+<pre><code>python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+
+# Edit config/config.yaml to set API keys
+nano config/config.yaml
+
+# Run with demo data
+python3 main.py --demo</code></pre>
+
+<div class="note">On first run, a random admin password is generated and written to <code>credentials.txt</code> in the working directory. Check this file or the console output to log in.</div>
+
+<h3 id="cli">CLI Reference</h3>
+<table>
+  <tr><th>Flag</th><th>Description</th></tr>
+  <tr><td><code>(no flag)</code></td><td>Start server on port 8000</td></tr>
+  <tr><td><code>--demo</code></td><td>Inject demo events and self-test all detection modules on startup</td></tr>
+  <tr><td><code>--clean</code></td><td>Wipe all data (database, logs, audit trail, quarantine, reports, temp files)</td></tr>
+  <tr><td><code>--scan &lt;path&gt;</code></td><td>One-shot file scan with JSON output</td></tr>
+  <tr><td><code>--config &lt;path&gt;</code></td><td>Use a custom configuration YAML file</td></tr>
+  <tr><td><code>--help</code></td><td>Display usage information</td></tr>
+</table>
+
+<!-- ─── DASHBOARD ─── -->
+<h2 id="dashboard">Command Center Dashboard</h2>
+<p>
+Single-page app with 14 tabs. Auto-refreshes every 10 seconds, with SSE pushing
+live updates for critical data.
+</p>
+
+<h3 id="dashboard-overview">Overview Tab</h3>
+<p>The default landing page provides a high-level security posture summary:</p>
+<ul>
+  <li><strong>Security Posture Banner</strong> - Overall risk level (Secure, Elevated, High, Critical) based on active alert severity</li>
+  <li><strong>Stat Cards</strong> - Alerts (24h), WAF Blocks, Blocked IPs, Quarantined Files, Processes, Connections, Hardening Score</li>
+  <li><strong>Recent Alerts</strong> - Last 5 alerts with severity badges, module, IP, and resolution status</li>
+  <li><strong>Alerts by Engine (24h)</strong> - Bar chart breakdown of alerts by detection module</li>
+  <li><strong>Kill Chain Status</strong> - Active multi-stage attack chains with stage completion</li>
+  <li><strong>MITRE ATT&CK Matrix</strong> - Tactics heatmap (Initial Access through Exfiltration)</li>
+  <li><strong>Alerts Timeline (24h)</strong> - Hourly alert volume line chart</li>
+  <li><strong>Blocked IPs</strong> - Currently blocked IP addresses with country and abuse score</li>
+  <li><strong>Recent Events</strong> - Live feed of WAF blocks, file changes, process and network detections</li>
+  <li><strong>System Health</strong> - CPU, memory, disk, and uptime gauges</li>
+  <li><strong>Threat Intelligence Summary</strong> - Top source countries, attack types, and recent AbuseIPDB lookups</li>
+</ul>
+
+<h3 id="dashboard-alerts">Alerts &amp; Incidents Tab</h3>
+<p>Centralised alert management console:</p>
+<ul>
+  <li><strong>Filter Controls</strong> - Search by text, filter by module, source (VPS hostname), severity (Critical/High/Medium/Low), include/exclude low severity, hide self-test events</li>
+  <li><strong>Alert Table</strong> - Columns: Severity badge, Title (with reason tooltip), Module, IP Address, Timestamp, Actions</li>
+  <li><strong>Resolve</strong> - Mark individual alerts as resolved with one click</li>
+  <li><strong>Analysis Explain</strong> - Click the <strong>Analysis</strong> button to generate an LLM-powered explanation of each alert, including context from related events, kill chain status, and IP intelligence <span class="tag tag-pro">PRO</span></li>
+  <li><strong>False Positive Scoring</strong> - Click <strong>FP</strong> to score an alert's likelihood of being benign. Bulk score all visible alerts with the "Score All" button <span class="tag tag-pro">PRO</span></li>
+  <li><strong>Alert Count Badge</strong> - Unresolved critical alert count shown in the navigation bar</li>
+  <li><strong>Deduplication</strong> - Alerts with the same title, IP, and module within a 1-hour window are automatically grouped</li>
+</ul>
+
+<h3 id="dashboard-killchain">Kill Chain Tab</h3>
+<p>Visualise multi-stage attack chains mapped to the Lockheed Martin framework:</p>
+<ul>
+  <li>Each IP's activity is tracked across 7 stages: Reconnaissance → Weaponisation → Delivery → Exploitation → Installation → Command &amp; Control → Actions on Objectives</li>
+  <li>Alerts are mapped to MITRE ATT&CK tactics (TA0001–TA0010)</li>
+  <li>Composite alerts fire when multiple stages are completed by the same IP</li>
+  <li>Click any chain to drill into detailed event timeline</li>
+  <li>Chains auto-expire after a configurable TTL</li>
+  <li>See the MITRE heatmap on the Overview tab for organisational tactical trends</li>
+</ul>
+
+<h3 id="dashboard-waf">WAF Dashboard Tab</h3>
+<p>Comprehensive Web Application Firewall analytics:</p>
+<ul>
+  <li><strong>Stats Bar</strong> - Total blocked requests, active blocked IPs, rate-limited requests, attack type distribution</li>
+  <li><strong>Attack Timeline</strong> - Hourly block volume chart</li>
+  <li><strong>WAF Event Log</strong> - Filterable table (search by IP, attack type, path) with payload preview</li>
+  <li><strong>Blocked IPs</strong> - List of currently blocked addresses with expiry and reason</li>
+  <li><strong>Custom Rules</strong> - Create, edit, enable/disable custom WAF rules with regex patterns. Restore defaults. <span class="tag tag-pro">PRO</span></li>
+  <li><strong>Test Console</strong> - Send sample requests against the WAF engine and see which signatures fire</li>
+</ul>
+
+<h3 id="dashboard-intel">Threat Intelligence Tab</h3>
+<p>IP reputation and threat landscape overview:</p>
+<ul>
+  <li><strong>Top Source Countries</strong> - Choropleth-style breakdown of traffic origins</li>
+  <li><strong>Attack Type Distribution</strong> - Pie chart of WAF attack categories</li>
+  <li><strong>Recent AbuseIPDB Lookups</strong> - Live feed of IP reputation queries with abuse score, country, ISP, and category</li>
+  <li><strong>Top Traffic IPs</strong> - Ranked by hit count with abuse scores, country, and block status</li>
+  <li><strong>IP Search</strong> - Look up any IP address for reputation data and historical events</li>
+  <li><strong>Auto-Block Settings</strong> - Configure abuse score threshold and enable/disable automatic IP blocking</li>
+</ul>
+
+<h3 id="dashboard-hardening">Hardening Tab</h3>
+<p>CIS benchmark-inspired security audit with actionable recommendations:</p>
+<ul>
+  <li><strong>Overall Score</strong> - 0–100% security posture rating with color-coded indicator</li>
+  <li><strong>Category Cards</strong> - SSH configuration, file permissions, kernel parameters, password policy, firewall rules</li>
+  <li><strong>Findings Table</strong> - Each check shows: status (pass/fail), description, current value, expected value, and remediation command</li>
+  <li><strong>Export</strong> - Download audit results as JSON for compliance evidence</li>
+  <li>Run the audit on demand or view the last cached result</li>
+</ul>
+
+<h3 id="dashboard-audit">Audit Trail Tab</h3>
+<p>Tamper-evident, cryptographically chained audit log:</p>
+<ul>
+  <li>Append-only JSONL format with HMAC-SHA256 chaining between entries</li>
+  <li>Each entry contains: timestamp, event type, actor, details, and a hash linking it to the previous entry</li>
+  <li><strong>Verification Status</strong> - "Chain Verified" or "Tamper Detected" indicator</li>
+  <li><strong>Event Table</strong> - Filterable by event type (config change, login, license apply, alert action, etc.)</li>
+  <li><strong>Export</strong> - Download the full audit log</li>
+  <li>The first entry's <code>prev_hash</code> is 64 zeros - any modification to an entry breaks the chain</li>
+</ul>
+
+<h3 id="dashboard-rules">Alert Rules Tab</h3>
+<p>Create automated notification rules:</p>
+<ul>
+  <li><strong>Rule Table</strong> - Name, Severity, Module, Pattern, Webhook URL, Enabled status</li>
+  <li><strong>Create Rule</strong> - Specify name, severity filter, module filter, regex pattern (matched against alert title), and optional webhook URL</li>
+  <li><strong>Webhook Integration</strong> - Each rule can POST JSON payloads to an external endpoint (Telegram, Discord, Slack, custom SOAR)</li>
+  <li><strong>Enable/Disable</strong> - Toggle rules on and off without deleting them</li>
+  <li>Rules are evaluated in real-time as alerts fire</li>
+</ul>
+
+<h3 id="dashboard-reports">Reports Tab</h3>
+<p>Generate and download executive security reports:</p>
+<ul>
+  <li><strong>Compliance Report</strong> - Executive summary HTML report with 8 sections: Executive Summary, Security Scorecard, Incident Breakdown, WAF Analysis, Top Threat Actors, Critical/High Alerts, Recommendations, Methodology. PDF export available. <span class="tag tag-pro">PRO</span></li>
+  <li><strong>Threat Summary</strong> - Lightweight threat landscape overview</li>
+  <li><strong>Data Export</strong> - Export alerts, WAF events, or traffic data as CSV or JSON</li>
+  <li>Scheduled reports (configurable interval, default 7 days)</li>
+</ul>
+
+<h3 id="dashboard-processes">Processes Tab</h3>
+<p>Live system process monitoring with suspicion scoring:</p>
+<ul>
+  <li><strong>Process Table</strong> - PID, Name, CPU%, Memory, Suspicious flag, Command line</li>
+  <li><strong>Summary Bar</strong> - Total processes, suspicious detections, resource usage</li>
+  <li><strong>Auto-Refresh</strong> - Live updates via SSE every 5 seconds</li>
+  <li><strong>Detection Heuristics</strong>: cryptominer patterns, parent-child anomalies (e.g., php-fpm spawning bash), resource hijacking with sustained CPU/memory spikes</li>
+  <li><strong>Exclusion List</strong> - Configured in settings to whitelist known processes</li>
+</ul>
+
+<h3 id="dashboard-network">Network Tab</h3>
+<p>Live network connection monitoring:</p>
+<ul>
+  <li><strong>Connection Table</strong> - Process, Local Address, Remote Address, Remote Port, Status (ESTABLISHED/TIME_WAIT/etc.)</li>
+  <li><strong>Summary Bar</strong> - Total connections, established count, suspicious detections</li>
+  <li><strong>Auto-Refresh</strong> - Live updates via SSE every 5 seconds</li>
+  <li><strong>Detection Heuristics</strong>: non-standard port connections, reverse shell port patterns, Tor exit node connections, excessive outbound connections</li>
+  <li>Trusted CIDR ranges configurable in settings</li>
+</ul>
+
+<h3 id="dashboard-files">Files Tab</h3>
+<p>File integrity monitoring management:</p>
+<ul>
+  <li><strong>Monitored Directories</strong> - List of directories under watch with add/remove controls</li>
+  <li><strong>File Hash Table</strong> - Each monitored file shows: path, SHA-256 hash, file size, last verified timestamp</li>
+  <li><strong>Scan on Modify</strong> - When enabled, modified files are automatically scanned by the malware scanner</li>
+  <li><strong>Add Directory</strong> - Add any path to the monitoring set (changes are tracked via inotify/watchdog)</li>
+  <li><strong>Whitelist Paths</strong> - Exclude paths matching patterns (e.g., /proc, /sys, /dev)</li>
+</ul>
+
+<h3 id="dashboard-logins">Login Monitor Tab</h3>
+<p>Multi-source authentication monitoring across 9 services:</p>
+<ul>
+  <li><strong>Summary Cards</strong> - Total events, failed logins, successful logins, blocked IPs</li>
+  <li><strong>Event Table</strong> - Timestamp, Source IP, Username, Service (SSH/FTP/MySQL/PostgreSQL/Nginx/Apache/sudo/cron/web), Status (success/failure), Port, Log Source</li>
+  <li><strong>Filters</strong> - By service, status, search, and date range</li>
+  <li><strong>Auto-Blocking</strong> - Brute force detection triggers automatic WAF and UFW blocking <span class="tag tag-pro">PRO</span></li>
+  <li><strong>Distributed Credential Stuffing</strong> - Same username from 3+ unique IPs within a configurable window triggers a high-severity alert</li>
+  <li><strong>Non-Standard Port Detection</strong> - Auth failures on uncommon ports are flagged</li>
+  <li><strong>Unblock</strong> - Release blocked IPs directly from the table</li>
+</ul>
+
+<h3 id="dashboard-fleet">Fleet Tab</h3>
+<p>Centralised multi-server management (Hub &amp; Spoke): <span class="tag tag-pro">PRO</span></p>
+<ul>
+  <li><strong>Fleet Map</strong> - Visual representation of all connected agents with connection status</li>
+  <li><strong>Agent Table</strong> - Agent ID, Hostname, IP Address, Status (Online/Offline/Degraded), Last Heartbeat, Version</li>
+  <li><strong>Status Indicators</strong>: <span style="color:var(--green)">Green</span> (Online, heartbeat received within 30s), <span style="color:var(--gold)">Amber</span> (Degraded, 1 heartbeat missed), <span style="color:var(--red)">Red</span> (Offline, 3+ heartbeats missed)</li>
+  <li><strong>Config Push</strong> - Push configuration updates to individual agents over the mTLS channel</li>
+  <li><strong>Source Filter</strong> - The Alerts tab includes a source dropdown to filter events by agent hostname</li>
+  <li><strong>Communication secured with mutual TLS (mTLS)</strong> - fallback to plain TCP with startup warning if not configured</li>
+</ul>
+
+<!-- ─── DETECTION MODULES ─── -->
+<h2 id="detection">Detection Modules</h2>
+
+<h3 id="waf">Web Application Firewall</h3>
+<p>
+BinaryWebEngine's WAF engine performs real-time HTTP request inspection using 186
+regex signatures across 25 attack categories. It operates as a reverse-proxy-level
+filter, scoring each request against all signatures and applying configurable thresholds
+for blocking.
+</p>
+
+<h4>Attack Categories Covered</h4>
+<table>
+  <tr><th>Category</th><th>Description</th><th>Signatures</th></tr>
+  <tr><td>SQL Injection</td><td>SQLi payloads, blind SQLi, UNION-based, time-based</td><td>18</td></tr>
+  <tr><td>Cross-Site Scripting</td><td>Reflected, stored, DOM-based XSS vectors</td><td>14</td></tr>
+  <tr><td>Local/Remote File Inclusion</td><td>LFI/RFI path traversal and inclusion attempts</td><td>10</td></tr>
+  <tr><td>Remote Code Execution</td><td>RCE payloads, PHP/Java/JS code injection</td><td>12</td></tr>
+  <tr><td>Command Injection</td><td>OS command injection via common vectors</td><td>9</td></tr>
+  <tr><td>SSRF</td><td>Server-side request forgery attempts</td><td>6</td></tr>
+  <tr><td>Webshells</td><td>PHP/ASP/JSP/Perl/Python webshell patterns</td><td>8</td></tr>
+  <tr><td>Path Traversal</td><td>Directory traversal encoded and decoded</td><td>8</td></tr>
+  <tr><td>SSTI</td><td>Server-side template injection (Jinja2, Twig, etc.)</td><td>6</td></tr>
+  <tr><td>XXE</td><td>XML external entity injection</td><td>4</td></tr>
+  <tr><td>LDAP Injection</td><td>LDAP query manipulation</td><td>4</td></tr>
+  <tr><td>NoSQL Injection</td><td>MongoDB query injection patterns</td><td>4</td></tr>
+  <tr><td>HTTP Parameter Pollution</td><td>Parameter pollution in query strings and POST bodies</td><td>3</td></tr>
+  <tr><td>CRLF Injection</td><td>HTTP response splitting and log injection</td><td>3</td></tr>
+  <tr><td>Prototype Pollution</td><td>JavaScript prototype chain pollution</td><td>3</td></tr>
+  <tr><td>Deserialisation</td><td>Java/PHP/Python insecure deserialisation</td><td>4</td></tr>
+  <tr><td>JWT Attacks</td><td>JWT manipulation, none algorithm, key confusion</td><td>4</td></tr>
+  <tr><td>GraphQL Abuse</td><td>GraphQL introspection, depth attacks, batching</td><td>4</td></tr>
+  <tr><td>Open Redirect</td><td>Unvalidated redirect parameters</td><td>3</td></tr>
+  <tr><td>Cache Poisoning</td><td>Web cache poisoning via header manipulation</td><td>3</td></tr>
+  <tr><td>CSV Injection</td><td>Formula injection in CSV export</td><td>2</td></tr>
+  <tr><td>Log Forging</td><td>Log injection via newline/carriage return</td><td>2</td></tr>
+  <tr><td>User Agent Anomaly</td><td>Suspicious user-agent strings (curl, wget, mass scanners)</td><td>6</td></tr>
+  <tr><td>Content Type Mismatch</td><td>Mismatch between Content-Type and payload</td><td>3</td></tr>
+  <tr><td>Cookie Manipulation</td><td>Cookie value tampering patterns</td><td>3</td></tr>
+</table>
+
+<h4>Inspection Pipeline</h4>
+<ol>
+  <li><strong>Blacklist Check</strong> - IP checked against blocked list (in-memory with expiry)</li>
+  <li><strong>Dynamic Block</strong> - Intel engine auto-block check</li>
+  <li><strong>AbuseIPDB Reputation</strong> - Real-time or cached reputation lookup</li>
+  <li><strong>Rate Limiting</strong> - Per-IP request rate check (default: 60 req/min)</li>
+  <li><strong>Anomaly Detection</strong> - Payload size, request frequency, response code deviation</li>
+  <li><strong>Signature Inspection</strong> - Request URI, headers, and body matched against all 186 signatures</li>
+  <li><strong>Custom Rules</strong> - User-defined regex rules evaluated last</li>
+</ol>
+<p>Each stage can independently block the request. Scoring accumulates across stages for graduated response.</p>
+
+<h4>Configuration</h4>
+<pre><code>waf:
+  enabled: true
+  rate_limit:
+    requests_per_minute: 60
+    block_duration: 300
+  auto_block_firewall: true</code></pre>
+
+<div class="tip">Use the <strong>Test Console</strong> on the WAF dashboard tab to evaluate how the engine responds to any request before deploying rule changes.</div>
+
+<h3 id="file-monitor">File Integrity Monitor</h3>
+<p>
+The File Monitor provides real-time and periodic file integrity verification using
+the Linux inotify API (via the watchdog library). It establishes SHA-256 baselines
+for all monitored files and detects any modification, deletion, or permission change.
+</p>
+<ul>
+  <li><strong>Real-Time Detection</strong> - Uses watchdog's inotify observer for immediate notification of file system events</li>
+  <li><strong>SHA-256 Baseline</strong> - Each file's hash, size, and permissions are stored on initial scan and compared on every change</li>
+  <li><strong>Webshell Scanning</strong> - Modified files are automatically passed to the malware scanner for webshell pattern matching</li>
+  <li><strong>Specific File Monitoring</strong> - High-value files (e.g., /etc/shadow, /etc/passwd, SSH keys) are polled on a separate schedule</li>
+  <li><strong>Whitelist Support</strong> - Exclude paths matching glob patterns</li>
+</ul>
+
+<h4>How to Use</h4>
+<ol>
+  <li>Navigate to the <strong>Files</strong> tab</li>
+  <li>Click <strong>"Add Directory"</strong> to add a path under watch</li>
+  <li>Toggle <strong>"Scan on Modify"</strong> to enable automatic malware scanning</li>
+  <li>Monitor the file hash table for baseline changes</li>
+</ol>
+
+<h3 id="process-monitor">Process Monitor</h3>
+<p>
+Continuously polls the system process table (via psutil) and applies heuristic-based
+suspicion scoring. Detects cryptominers, reverse shells, resource hijacking, and
+anomalous parent-child process relationships.
+</p>
+<ul>
+  <li>Suspicion scoring based on: parent-child relationships, resource consumption, known malicious patterns</li>
+  <li>Sustained CPU/memory spikes tracked with strike counters (3 strikes = alert)</li>
+  <li>Cryptominer detection via command-line pattern matching (xmrig, miner, etc.)</li>
+  <li>Auto-kill option for high-usage processes (configurable in settings)</li>
+  <li>Exclusion list for trusted system processes</li>
+</ul>
+
+<h4>Configuration</h4>
+<pre><code>processes:
+  cpu_limit: 90.0
+  mem_limit_mb: 1024
+  auto_kill_high_usage: false
+  excluded:
+    - systemd
+    - kthreadd
+  suspicious_parents:
+    - nginx
+    - apache2
+    - php-fpm
+  suspicious_children:
+    - bash
+    - sh
+    - nc
+    - python</code></pre>
+
+<h3 id="network-monitor">Network Monitor</h3>
+<p>
+Monitors live network connections via psutil, classifying each connection for suspicious
+characteristics and alerting on anomalies.
+</p>
+<ul>
+  <li>Real-time connection table with process-level attribution</li>
+  <li>Detection of: non-standard port connections, reverse shell ports, Tor exit nodes, excessive outbound connections</li>
+  <li>CIDR-based trust filtering for private and known-good ranges</li>
+  <li>Optional Scapy-based packet capture for deep inspection</li>
+  <li>Connection history with suspicion scoring</li>
+</ul>
+
+<h3 id="malware-scanner">Malware Scanner</h3>
+<p>
+Multi-layered file analysis engine combining regex pattern matching, YARA rules, and
+VirusTotal hash lookups.
+</p>
+<ul>
+  <li><strong>Webshell Detection</strong> - Regex patterns targeting PHP, ASP, JSP, Perl, and Python obfuscation techniques (base64, hex, gzinflate, etc.)</li>
+  <li><strong>YARA Rules</strong> - Loaded from <code>config/malware_rules.yar</code>, matching on file content and metadata</li>
+  <li><strong>VirusTotal</strong> - File hash lookup against the VirusTotal database <span class="tag tag-pro">PRO</span></li>
+  <li><strong>Quarantine</strong> - Suspicious files are moved to the quarantine directory with cryptographic hash mapping. Quarantine supports restore and permanent deletion</li>
+</ul>
+
+<h3 id="login-monitor">Login Monitor</h3>
+<p>
+Parses log files from 9 services to detect brute force attacks, credential stuffing,
+and authentication anomalies in real time.
+</p>
+<table>
+  <tr><th>Service</th><th>Log Source</th><th>Detection</th></tr>
+  <tr><td>SSH</td><td><code>/var/log/auth.log</code></td><td>Failed/successful login attempts</td></tr>
+  <tr><td>FTP</td><td><code>/var/log/vsftpd.log</code></td><td>Failed authentication</td></tr>
+  <tr><td>MySQL</td><td><code>/var/log/mysql/error.log</code></td><td>Access denied events</td></tr>
+  <tr><td>PostgreSQL</td><td><code>/var/log/postgresql/postgresql-*.log</code></td><td>Password authentication failures</td></tr>
+  <tr><td>Nginx</td><td><code>/var/log/nginx/access.log</code></td><td>POST to login paths with 401</td></tr>
+  <tr><td>Apache</td><td><code>/var/log/apache2/access.log</code></td><td>POST to login paths with 401</td></tr>
+  <tr><td>sudo</td><td><code>/var/log/auth.log</code></td><td>Failed sudo authentication</td></tr>
+  <tr><td>cron</td><td><code>/var/log/syslog</code></td><td>Cron authentication errors</td></tr>
+  <tr><td>Web</td><td>API callback</td><td>Web application login failures recorded via <code>record_web_login()</code></td></tr>
+</table>
+
+<h4>Detection Capabilities</h4>
+<ul>
+  <li><strong>Brute Force</strong> - Per-IP failure tracking within sliding time window (default: 5 failures in 60s). Triggers critical alert, WAF block, and UFW denial</li>
+  <li><strong>Distributed Credential Stuffing</strong> - Same username from 3+ unique IPs within 300s → high-severity alert</li>
+  <li><strong>Credential Stuffing Success</strong> - Successful login from an IP with prior failures → high alert</li>
+  <li><strong>Non-Standard Ports</strong> - Auth failures on non-standard ports → medium alert</li>
+  <li><strong>Unblock</strong> - Release blocked IPs directly from the table</li>
+</ul>
+
+<h3 id="anomaly">Anomaly Detection</h3>
+<p>
+Two-tier machine learning system for behavioural anomaly detection:
+</p>
+
+<h4>Anomaly Detector v1 (Production)</h4>
+<ul>
+  <li><strong>Welford's Online Algorithm</strong> - Per-endpoint rolling mean and variance without storing all data points</li>
+  <li><strong>Z-Score Detection</strong> - Flags requests with payload size, frequency, or response code deviation beyond configurable threshold</li>
+  <li><strong>Isolation Forest</strong> - Unsupervised ML trained on feature vectors (payload size, response code, request rate). Warmup period of 100 samples before inference</li>
+  <li>Configurable contamination rate and warmup period</li>
+</ul>
+
+<h4>Anomaly Detector v2 (Advanced)</h4>
+<ul>
+  <li><strong>LSTM Sequence Profiling</strong> - ONNX Runtime neural network inference for per-IP request sequence analysis</li>
+  <li><strong>Page-Hinkley Concept Drift</strong> - Detects distribution shifts in request patterns over time</li>
+  <li>Falls back to z-score if ONNX model is unavailable</li>
+</ul>
+
+<h3 id="killchain">Kill Chain &amp; MITRE ATT&CK</h3>
+<p>
+The Kill Chain engine maps every alert to the Lockheed Martin 7-stage intrusion kill
+chain and MITRE ATT&CK framework (TA0001–TA0010). It composites related events from
+the same IP into multi-stage attack narratives.
+</p>
+
+<table>
+  <tr><th>Stage</th><th>MITRE ID</th><th>Description</th></tr>
+  <tr><td>1. Reconnaissance</td><td>TA0001</td><td>Probing, scanning, directory enumeration</td></tr>
+  <tr><td>2. Weaponisation</td><td>TA0002</td><td>Payload preparation, exploit kits</td></tr>
+  <tr><td>3. Delivery</td><td>TA0003</td><td>Phishing, drive-by download, WAF-evasion delivery</td></tr>
+  <tr><td>4. Exploitation</td><td>TA0004</td><td>Vulnerability exploitation, code execution</td></tr>
+  <tr><td>5. Installation</td><td>TA0005</td><td>Webshell upload, backdoor installation, persistence</td></tr>
+  <tr><td>6. Command &amp; Control</td><td>TA0006/7</td><td>C2 beaconing, reverse shell, tunnel setup</td></tr>
+  <tr><td>7. Actions on Objectives</td><td>TA0008–10</td><td>Data exfiltration, lateral movement, destruction</td></tr>
+</table>
+
+<ul>
+  <li>Chains are created on first alert from an IP and progress through stages as related events fire</li>
+  <li>Composite alerts are emitted when an IP completes multiple stages</li>
+  <li>Chains auto-expire after configurable time-to-live</li>
+  <li>MITRE heatmap on the Overview tab shows organisational tactical trends</li>
+</ul>
+
+<h3 id="correlation">Correlation Engine</h3>
+<p>
+Cross-module signal correlation combines indicators from file, process, network, and
+WAF monitoring to detect multi-vector attacks. Pre-defined correlation rules identify
+patterns like:
+</p>
+<ul>
+  <li>File modification + suspicious process spawn + outbound network connection</li>
+  <li>WAF SQLi alert + subsequent process injection attempt</li>
+  <li>Multiple login failures + successful login from different IP + file access</li>
+</ul>
+<p>Correlated events fire composite alerts with higher severity than individual signals.</p>
+
+<!-- ─── INTELLIGENCE & AI ─── -->
+<h2 id="intelligence">Threat Intelligence &amp; AI</h2>
+
+<h3 id="intel">Threat Intelligence (AbuseIPDB)</h3>
+<p>
+BinaryWebEngine integrates with AbuseIPDB for real-time IP reputation lookups. Every
+request is checked against a local cache (24-hour TTL) and the AbuseIPDB API for
+abuse score, category, country, ISP, and domain information.
+</p>
+<ul>
+  <li><strong>CIDR Suppression</strong> - Configure CIDR ranges to skip (trusted partners) or always look up (critical infrastructure)</li>
+  <li><strong>Auto-Blocking</strong> - When enabled, IPs exceeding the abuse score threshold are automatically blocked at the WAF and firewall level <span class="tag tag-pro">PRO</span></li>
+  <li><strong>Threshold Configuration</strong> - Set the abuse score percentage (1–100) that triggers blocking</li>
+  <li><strong>24-Hour Cache</strong> - Reputation data is cached per IP to reduce API calls and improve response time</li>
+  <li><strong>Geo/ISP Enrichment</strong> - Each lookup provides country, ISP, domain, and abuse type categories</li>
+</ul>
+
+<h4>Setup</h4>
+<ol>
+  <li>Obtain an API key from <a href="https://www.abuseipdb.com" style="color:var(--mrn-lt)">AbuseIPDB</a></li>
+  <li>In the dashboard, go to <strong>Settings → API Keys</strong> and enter the key</li>
+  <li>Or set <code>ABUSEIPDB_API_KEY</code> as an environment variable</li>
+  <li>Configure auto-block threshold in <strong>Settings → Intel</strong></li>
+</ol>
+
+<h3 id="ai-assistant">Threat Intel Assistant <span class="tag tag-pro">PRO</span></h3>
+<p>
+The Threat Intel Assistant provides LLM-powered security analysis using NVIDIA, Google Gemini,
+or OpenAI models. All AI responses are grounded in real engine data and verified
+against the provided context to prevent hallucinations.
+</p>
+
+<h4>Capabilities</h4>
+<ul>
+  <li><strong>Alert Explanation</strong> - One-click Threat Analysis of any alert with context from related events, kill chain status, process trees, and known WAF signatures</li>
+  <li><strong>Conversational Chat</strong> - Full-system AI chat that can query live data: alerts, blocked IPs, WAF events, traffic statistics, intelligence data, process/network state, hardening scores, audit entries, custom WAF rules, fleet status</li>
+  <li><strong>Tool Calling</strong> - The AI can request real-time data by generating tool markers in responses. Supported tools: get_alerts, get_login_events, get_waf_events, get_traffic, get_intel, get_processes, get_network, get_hardening, get_audit, get_custom_rules, get_fleet</li>
+  <li><strong>Action Suggestions</strong> - The AI can suggest actions (block IP, resolve alert, unblock IP, add directory) rendered as clickable buttons</li>
+  <li><strong>Grounding Verification</strong> - All responses are post-processed to verify that any IPs, file paths, or timestamps mentioned exist in the provided context data</li>
+</ul>
+
+<h4>Provider Configuration</h4>
+<table>
+  <tr><th>Provider</th><th>API Key Config</th><th>Models</th></tr>
+  <tr><td>NVIDIA</td><td><code>ai.api_key</code> or <code>INTEL_API_KEY</code></td><td>llama-3.2-3b-instruct (fast), mistralai/mistral-small-4-119b-2603 (heavy)</td></tr>
+  <tr><td>Google Gemini</td><td><code>ai.gemini_api_keys</code> or <code>GEMINI_API_KEY</code></td><td>gemini-2.0-flash (fast), gemini-2.0-pro (heavy)</td></tr>
+  <tr><td>OpenAI</td><td><code>ai.api_key</code> or <code>INTEL_API_KEY</code></td><td>gpt-4o-mini (fast), gpt-4o (heavy)</td></tr>
+</table>
+
+<h4>How to Use</h4>
+<ol>
+  <li>Configure an AI provider API key in <strong>Settings → API Keys</strong></li>
+  <li>Apply a license key that includes the <code>ai</code> feature (Settings → Subscription)</li>
+  <li>Click the <strong>Analysis</strong> button next to any alert for an explanation</li>
+  <li>Use the floating chat widget (bottom-right) for conversational queries</li>
+  <li>Click suggested action buttons in AI responses to execute remediation</li>
+</ol>
+
+<div class="note">The Threat Intel Assistant requires a valid license feature key (<code>ai_assistant</code>) and a configured API key. All API keys are stored encrypted in the database and can be updated at runtime without restarting the engine.</div>
+
+<h3 id="false-positive">False Positive Advisor <span class="tag tag-pro">PRO</span></h3>
+<p>
+Reduces alert fatigue by scoring each alert for false positive likelihood. Uses a
+combination of heuristic factors and optional Threat Intel Enhancement:
+</p>
+<ul>
+  <li><strong>Heuristic Scoring</strong> - Considers: same-IP alert frequency, known scanner ASNs, safe port usage, process whitelist matches, WAF signature false-positive reputation</li>
+  <li><strong>Threat Intel Enhancement</strong> - When the Threat Intel Assistant is active, a full LLM analysis is performed for each alert with natural-language explanation of the score</li>
+  <li><strong>Batch Scoring</strong> - Score all unresolved alerts at once from the Alerts tab</li>
+  <li><strong>Score Persistence</strong> - Scores are cached in the database so they are not recalculated</li>
+</ul>
+
+<h3 id="ja3">JA3 Fingerprinting</h3>
+<p>
+Passive TLS fingerprinting captures JA3 hashes from network traffic to identify
+known malicious TLS clients, C2 frameworks, and automated attack tools.
+</p>
+<ul>
+  <li>Captures JA3 hashes via Scapy or tshark packet capture</li>
+  <li>Matches against a built-in database of known C2 profiles</li>
+  <li>Alerts on previously unseen or suspicious fingerprints</li>
+</ul>
+
+<!-- ─── MANAGEMENT ─── -->
+<h2 id="management">Enterprise Management</h2>
+
+<h3 id="fleet">Fleet Management <span class="tag tag-pro">PRO</span></h3>
+<p>
+The Hub &amp; Spoke fleet architecture enables centralised monitoring of multiple
+servers from a single BinaryWebEngine dashboard - no separate SIEM required.
+</p>
+
+<h4>Architecture</h4>
+<div class="mermaid">
+flowchart TB
+    subgraph Hub["Hub VPS (10.0.0.1)"]
+        D[BinaryWebEngine Dashboard<br>http://10.0.0.1:8000]
+        L[Agent Listener<br>tcp://0.0.0.0:9001 mTLS]
+    end
+    Hub -->|port 9001| A1[VPS Web-01<br>AGENT_MODE=agent]
+    Hub -->|port 9001| A2[VPS DB-01<br>AGENT_MODE=agent]
+    Hub -->|port 9001| A3[VPS API-01<br>AGENT_MODE=agent]
+</div>
+
+<h4>Setup Guide</h4>
+<p><strong>Hub (one per fleet):</strong></p>
+<pre><code># Generate certificates (first time only)
+./scripts/gen_fleet_certs.sh --agents web-01,db-01,api-01
+
+# Start hub
+export BWE_AGENT_MODE=hub
+./bwe</code></pre>
+
+<p><strong>Agent (each worker):</strong></p>
+<pre><code>export BWE_AGENT_MODE=agent
+export BWE_HUB_HOST=10.0.0.1
+export BWE_AGENT_CERT=certs/web-01.pem
+./bwe</code></pre>
+
+<ul>
+  <li><strong>Heartbeat</strong> - Agents send signed heartbeats every 30s. The hub marks agents offline after 3 missed heartbeats (90s)</li>
+  <li><strong>Config Push</strong> - Push configuration diffs to individual agents from the Fleet tab. Agents apply changes live or queue restart-required flags</li>
+  <li><strong>Security</strong> - Mutual TLS with per-agent client certificates. Falls back to plain TCP with a warning if <code>fleet.mtls_enabled: false</code></li>
+  <li><strong>Source Filter</strong> - The Alerts tab "All sources" dropdown lets you filter by agent hostname</li>
+</ul>
+
+<h3 id="siem">SIEM Forwarding <span class="tag tag-pro">PRO</span></h3>
+<p>
+Forward alerts to external SIEM platforms in standard formats:
+</p>
+<ul>
+  <li><strong>Formats</strong> - CEF (Common Event Format), JSON, LEEF</li>
+  <li><strong>Transports</strong> - TLS, UDP, TCP</li>
+  <li><strong>Compatibility</strong> - Splunk, ELK Stack, QRadar, ArcSight, Sumo Logic</li>
+  <li>Configure in <strong>Settings → Engine</strong> or via the API</li>
+</ul>
+
+<h3 id="soar">SOAR &amp; Notifications <span class="tag tag-pro">PRO</span></h3>
+<p>
+Multi-channel alert notifications with HMAC-signed webhook verification:
+</p>
+<ul>
+  <li><strong>Channels</strong> - Discord (rich embeds), Telegram (HTML messages), Slack</li>
+  <li><strong>SOAR Platforms</strong> - Tines, Shuffle, n8n, PagerDuty, Splunk SOAR</li>
+  <li><strong>Verification</strong> - Webhook payloads are signed with <code>X-BWE-Signature</code> header using HMAC-SHA256</li>
+  <li><strong>Severity Filtering</strong> - Configurable minimum severity threshold for notifications</li>
+  <li><strong>Per-Rule Webhooks</strong> - Alert Rules tab allows custom webhook URLs per rule</li>
+</ul>
+
+<h3 id="compliance">Compliance Reports <span class="tag tag-pro">PRO</span></h3>
+<p>
+Auto-generated executive reports for CISOs, auditors, and compliance reviews:
+</p>
+<ul>
+  <li><strong>HTML Reports</strong> - Professional dark-themed layout with 8 sections</li>
+  <li><strong>PDF Export</strong> - High-quality PDF via WeasyPrint engine</li>
+  <li><strong>Report Sections</strong>: Executive Summary, Security Scorecard (8 metrics: Total Alerts, WAF Blocks, Monitored Files, Quarantined Files, Suspicious Processes, Suspicious Connections, Unresolved Alerts, Resolution Rate), Incident Breakdown by Severity + Module, WAF Analysis with attack type distribution, Top Threat Actors by IP with abuse scores, Critical and High Severity Alerts table, Recommendations (context-aware based on risk level), Methodology</li>
+  <li><strong>Scheduling</strong> - Auto-generate on configurable interval (default 7 days)</li>
+  <li>Access from the Reports tab or <code>GET /report/compliance</code></li>
+</ul>
+
+<h3 id="config">Configuration</h3>
+<p>
+BinaryWebEngine is configured via a central YAML file. All settings can be modified
+at runtime through the Settings modal or API endpoints.
+</p>
+
+<h4>Settings Modal (Dashboard)</h4>
+<p>Click the gear icon in the top-right corner to open Settings with 5 tabs:</p>
+<ul>
+  <li><strong>General</strong> - Admin password, database path, log level, alert retention, monitoring directories</li>
+  <li><strong>API Keys</strong> - AI provider key (NVIDIA/Gemini/OpenAI), AbuseIPDB key, VirusTotal key. Colored status badges show saved/unset state</li>
+  <li><strong>Engine</strong> - WAF enable/disable, rate limit, auto-block firewall toggle, anomaly detection toggle, login monitor configuration</li>
+  <li><strong>Intel</strong> - Auto-block enable/disable, abuse score threshold (1–100%), CIDR excluded ranges</li>
+  <li><strong>Subscription</strong> - License key input and current feature status display</li>
+</ul>
+
+<h4>Configuration File (config.yaml)</h4>
+<pre><code>engine:
+  name: BinaryWebEngine
+  version: 1.0.0
+  log_level: INFO
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  auth:
+    admin_user: admin
+    admin_password: ""
+    secret_key: change-in-production
+
+database:
+  path: security_engine.db
+  retention_days: 90
+
+waf:
+  enabled: true
+  rate_limit:
+    requests_per_minute: 60
+    block_duration: 300
+  auto_block_firewall: true
+
+intel:
+  enabled: true
+  abuse_threshold: 25
+  auto_block_enabled: false
+  auto_block_threshold: 75
+
+monitoring:
+  directories:
+    - uploads
+    - tmp
+  hash_algorithm: sha256
+  scan_on_modify: true
+
+processes:
+  cpu_limit: 90.0
+  mem_limit_mb: 1024
+  auto_kill_high_usage: false
+
+login_monitor:
+  brute_force_threshold: 5
+  brute_force_window_seconds: 60
+  block_duration_seconds: 3600
+  poll_interval: 10</code></pre>
+
+<!-- ─── OPERATIONS ─── -->
+<h2 id="operations">Operations</h2>
+
+<h3 id="api">API Reference</h3>
+<p>BinaryWebEngine exposes a REST API for integration with existing tools and workflows. All endpoints require authentication via session cookie or the <code>X-Session-Token</code> header.</p>
+<ul>
+  <li><code>GET /alerts</code> - Retrieve active security alerts</li>
+  <li><code>POST /alerts/{id}/resolve</code> - Mark an alert as resolved</li>
+  <li><code>GET /intel/ip/{ip}</code> - Perform an AbuseIPDB lookup</li>
+  <li><code>POST /ai/chat</code> - Interact with the SOC Assistant via MCP</li>
+  <li><code>GET /waf/events</code> - Fetch WAF block history</li>
+</ul>
+
+<h3 id="env">Environment Variables</h3>
+<p>Override settings securely without modifying <code>config.yaml</code>:</p>
+<ul>
+  <li><code>BWE_ADMIN_USER</code> - Overrides the default admin username</li>
+  <li><code>BWE_ADMIN_PASS</code> - Overrides the admin password</li>
+  <li><code>INTEL_API_KEY</code> - Sets the LLM provider API key</li>
+  <li><code>ABUSEIPDB_API_KEY</code> - Sets the IP intelligence API key</li>
+  <li><code>BWE_AGENT_MODE</code> - Set to <code>hub</code> or <code>agent</code> for Fleet functionality</li>
+</ul>
+
+<h3 id="deployment">Deployment</h3>
+<p>For production deployments on edge networks:</p>
+<pre><code># Deploy API backend to Cloudflare Workers
+cd worker
+npx wrangler deploy
+
+# Deploy Frontend to Firebase Hosting
+cd frontend-react
+npm run build
+npx firebase deploy --only hosting</code></pre>
+<p>This separates the high-traffic WAF layer (Cloudflare) from the interactive dashboard (Firebase).</p>
+
+<h3 id="troubleshooting">Troubleshooting</h3>
+<ul>
+  <li><strong>D1 Database Errors</strong>: If the dashboard fails to load metrics, ensure the Cloudflare D1 database is properly bound in <code>wrangler.toml</code>.</li>
+  <li><strong>Login Failures</strong>: Ensure the `SESSION_COOKIE` matches exactly across the frontend and Worker.</li>
+  <li><strong>Threat Intel Assistant Unresponsive</strong>: Verify the `VECTOR_INDEX` binding exists and the NVIDIA API key is populated via <code>wrangler secret put NVIDIA_API_KEY</code>.</li>
+</ul>
+
+<h3 id="license-system">Licensing</h3>
+<p>BinaryWebEngine Enterprise utilizes a cryptographic license key to unlock PRO features (Fleet, AI, Custom Rules, Reporting). A license is validated locally via ECDSA signatures and requires no external ping-home telemetry.</p>
+<pre><code># Apply a license key via CLI
+./bwe --license "BWE-XXXX-XXXX-XXXX-XXXX"</code></pre>
+
+</main>
+</div>
+
+<script>
+  // Simple sidebar highlighting script based on scroll position
+  const sections = document.querySelectorAll('h2, h3');
+  const navLinks = document.querySelectorAll('.sidebar a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      if (scrollY >= sectionTop - 100) {
+        current = section.getAttribute('id');
+      }
+    });
+
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href').includes(current)) {
+        link.classList.add('active');
+      }
+    });
+  });
+</script>
+<script src="/static/chatbot.js" defer></script></body>
+</html>

@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BinaryWebEngine - Security Command Center</title>
+<link rel="icon" href="/static/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="/static/style.css?v=2.1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">
+      <img src="/static/White_background_logo.png" alt="BWE" style="height:38px;width:auto">
+      <div>
+        <div class="logo-text">BinaryWebEngine</div>
+        <div class="logo-sub">by BinaryShielders · Security Suite</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="status-badge">
+        <span class="status-dot" id="engineDot"></span>
+        <span id="engineLabel">All engines nominal</span>
+      </span>
+      <div class="topbar-divider"></div>
+      <span class="user-label" id="userLabel">admin</span>
+      <button class="icon-btn" onclick="downloadPDF()" title="Download PDF Report"><i class="ti ti-download"></i></button>
+      <button class="icon-btn" onclick="refreshAll()" title="Refresh data"><i class="ti ti-refresh"></i></button>
+      <button class="icon-btn" onclick="openSettings()" title="Settings"><i class="ti ti-settings"></i></button>
+      <a href="/" style="text-decoration:none">
+        <button class="icon-btn danger" title="Go to Home"><i class="ti ti-logout"></i></button>
+      </a>
+      <div class="avatar" id="userAvatar" title="Logged in user">A</div>
+    </div>
+  </div>
+
+  <!-- ── NAVIGATION ── -->
+  <div class="nav" id="mainNav">
+    <span class="nav-item active" data-tab="overview" onclick="setTab('overview')">
+      <i class="ti ti-layout-dashboard"></i> Overview
+    </span>
+    <span class="nav-item" data-tab="alerts" onclick="setTab('alerts')">
+      <i class="ti ti-alert-triangle"></i> Alerts
+      <span id="alertCount" class="nav-badge" style="display:none">0</span>
+    </span>
+    <span class="nav-item" data-tab="killchain" onclick="setTab('killchain')">
+      <i class="ti ti-swords"></i> Kill Chain
+    </span>
+    <span class="nav-item" data-tab="waf" onclick="setTab('waf')">
+      <i class="ti ti-shield"></i> WAF
+    </span>
+    <span class="nav-item" data-tab="intel" onclick="setTab('intel')">
+      <i class="ti ti-world"></i> Threat Intel <span class="prem-badge" data-feature="rep">PRO</span>
+    </span>
+    <span class="nav-item" data-tab="hardening" onclick="setTab('hardening')">
+      <i class="ti ti-shield-check"></i> Hardening
+    </span>
+    <span class="nav-item" data-tab="audit" onclick="setTab('audit')">
+      <i class="ti ti-scale"></i> Audit
+    </span>
+    <span class="nav-item" data-tab="reports" onclick="setTab('reports')">
+      <i class="ti ti-report"></i> Reports
+    </span>
+    <span class="nav-item" data-tab="processes" onclick="setTab('processes')">
+      <i class="ti ti-cpu"></i> Processes
+    </span>
+    <span class="nav-item" data-tab="network" onclick="setTab('network')">
+      <i class="ti ti-network"></i> Network
+    </span>
+    <span class="nav-item" data-tab="files" onclick="setTab('files')">
+      <i class="ti ti-file-search"></i> Files
+    </span>
+    <span class="nav-item" data-tab="logins" onclick="setTab('logins')">
+      <i class="ti ti-fingerprint"></i> Logins
+    </span>
+    <span class="nav-item admin-only" data-tab="fleet" onclick="setTab('fleet')">
+      <i class="ti ti-server"></i> Fleet <span class="prem-badge" data-feature="mh">PRO</span>
+    </span>
+    <span class="nav-spacer"></span>
+    <span class="nav-live">
+      <span class="live-dot"></span>
+      <span id="liveClock">00:00:00</span>
+    </span>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="content" id="mainContent">
+
+    <!-- ═══ OVERVIEW ═══ -->
+    <div class="tab-section active fade-in" id="tab-overview">
+
+      <!-- KPI Row -->
+      <div class="stats-row" id="kpiRow"></div>
+
+      <!-- System Gauges Row -->
+      <div class="gauge-row" id="gaugeRow"></div>
+
+      <!-- Row 1: Recent alerts + Kill chains + MITRE -->
+      <div class="row2">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-bell-ringing" style="color:var(--maroon-accent)"></i> Recent Incidents</span>
+            <div class="panel-actions">
+              <span class="panel-count" id="recentAlertCount">-</span>
+              <span class="panel-action" onclick="setTab('alerts')"><i class="ti ti-arrow-right"></i> All alerts</span>
+            </div>
+          </div>
+          <div id="recentAlerts"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-swords" style="color:var(--red)"></i> Active Kill Chains</span>
+            <span class="panel-action" onclick="setTab('killchain')"><i class="ti ti-arrow-right"></i> MITRE</span>
+          </div>
+          <div class="scroll-table">
+            <table class="kc-table" id="kcOverview"></table>
+          </div>
+          <div class="section-div">MITRE ATT&CK Coverage</div>
+          <div class="mitre-grid" id="mitreGrid"></div>
+          <div style="display:flex;gap:16px;padding:4px 20px 16px;flex-wrap:wrap">
+            <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(61,186,82,0.2);border:1px solid rgba(61,186,82,0.35)"></span>Covered</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(224,176,64,0.1);border:1px solid rgba(224,176,64,0.25)"></span>Partial</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted)"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,0.04);border:1px solid var(--blk-brd)"></span>None</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Attackers + Intel + Attack vectors -->
+      <div class="row3">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-world" style="color:var(--maroon-accent)"></i> Top Attackers</span>
+            <span class="panel-action" onclick="setTab('intel')"><i class="ti ti-arrow-right"></i> Intel</span>
+          </div>
+          <div style="padding:14px 20px" id="topAttackers"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-shield-off" style="color:var(--gold)"></i> IP Reputation</span>
+            <span class="panel-action" onclick="setTab('intel')">AbuseIPDB →</span>
+          </div>
+          <div class="intel-grid" id="intelGrid"></div>
+          <div class="section-div">Alerts by Engine (24h)</div>
+          <div style="padding:0 20px 4px"><div class="spark" id="engineSpark"></div></div>
+          <div style="padding:4px 20px 16px"><div class="legend" id="engineLegend"></div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-pie-chart" style="color:var(--blue)"></i> Attacks by Type</span>
+            <div class="panel-actions" style="display:flex;align-items:center;gap:6px">
+              <span class="prem-grp" data-feature="ai">
+                <button class="btn btn-outline btn-xs" onclick="explainAttackPie()" title="Analyze with AI" style="font-size:10px;padding:2px 6px">
+                  <i class="ti ti-sparkles"></i> AI
+                </button>
+              </span>
+              <span class="panel-action">7 days →</span>
+            </div>
+          </div>
+          <div style="padding:16px 20px" class="pie-container" id="attackPie"></div>
+          <div class="section-div">Traffic Volume (24h)</div>
+          <div style="padding:0 20px 4px"><div class="sparkline-box" id="trafficSpark"></div></div>
+          <div style="padding:4px 20px 16px"><div class="legend" id="trafficLegend"></div></div>
+        </div>
+      </div>
+
+      <!-- Row 3: Engines + Anomaly baselines + JA3 fingerprints -->
+      <div class="row3">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-cpu" style="color:var(--green)"></i> Engine Modules</span>
+          </div>
+          <div class="badge-grid" id="engineBadges"></div>
+          <div class="gauge-wrap" style="border-top:1px solid var(--blk-brd)">
+            <svg width="52" height="52" viewBox="0 0 52 52">
+              <circle cx="26" cy="26" r="20" fill="none" stroke="var(--blk-md)" stroke-width="5"/>
+              <circle cx="26" cy="26" r="20" fill="none" stroke="var(--green)" stroke-width="5"
+                stroke-dasharray="105 126" stroke-linecap="round" transform="rotate(-90 26 26)"/>
+              <text x="26" y="31" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text-pr)" id="gaugeScore">85</text>
+            </svg>
+            <div class="gauge-info">
+              <div style="font-size:14px;font-weight:700;color:var(--text-pr)">Security Posture</div>
+              <div style="font-size:11px;color:var(--text-muted)" id="gaugeInfo">Last audit: pending</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-chart-line" style="color:var(--gold)"></i> Anomaly Baselines</span>
+          </div>
+          <div class="scroll-table">
+            <table class="kc-table" id="anomalyTable"></table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--blk-brd)">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">
+              <span>IsolationForest Training</span>
+              <span id="iforestStatus" style="color:var(--blue)">0 / 50 samples</span>
+            </div>
+            <div class="bar-track" style="height:4px"><div class="bar-fill" id="iforestBar" style="width:0%;background:var(--blue)"></div></div>
+          </div>
+          <div id="anomalyV2Status" style="padding:8px 20px 12px;border-top:1px solid var(--blk-brd);min-height:24px"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-fingerprint" style="color:var(--blue)"></i> TLS Fingerprints</span>
+            <span class="panel-action">JA3 →</span>
+          </div>
+          <div class="scroll-table">
+            <table class="kc-table" id="ja3Table"></table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--blk-brd);display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);align-items:center">
+            <span id="ja3Count">0 malicious fingerprints active</span>
+            <span style="color:var(--maroon-accent);cursor:pointer;font-weight:600">View all 28 →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: Analytics (Bar charts, Columns, Bars) -->
+      <div class="row3">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-chart-bar" style="color:var(--blue)"></i> Alerts Timeline (24h)</span>
+          </div>
+          <div class="chart-box" id="alertTimelineChart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-chart-histogram" style="color:var(--maroon-accent)"></i> Attack Distribution</span>
+          </div>
+          <div class="chart-box" id="attackColumnChart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-cpu" style="color:var(--green)"></i> Top Processes by Memory</span>
+          </div>
+          <div class="cpu-bar-box" id="cpuBarChart"></div>
+        </div>
+      </div>
+
+      <!-- Row 5: SIEM + SOAR -->
+      <div class="row2">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-transfer" style="color:var(--blue)"></i> SIEM Integration</span>
+          </div>
+          <div class="siem-grid" id="siemGrid"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-link" style="color:var(--maroon-accent)"></i> SOAR Webhook</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;padding:16px 20px" id="soarBadges"></div>
+          <div style="padding:12px 20px;border-top:1px solid var(--blk-brd);display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);align-items:center">
+            <span><i class="ti ti-lock" style="margin-right:4px"></i>HMAC-SHA256 signed</span>
+            <span style="color:var(--text-sec)" id="soarStatus">Last ping: -</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer bar -->
+      <div class="footer-bar">
+        <div class="footer-bar-left">
+          <span><i class="ti ti-shield-lock" style="color:var(--maroon-accent);margin-right:4px"></i>BinaryWebEngine v1.0.0 · BinaryShielders</span>
+          <span>Audit trail: <span style="color:var(--green)" id="auditVerify">tamper-evident [OK]</span></span>
+        </div>
+        <div class="footer-bar-right">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span class="status-dot" style="width:6px;height:6px"></span>Live</span>
+          <span>Uptime: <span id="uptimeLabel">-</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ALERTS ═══ -->
+    <div class="tab-section" id="tab-alerts">
+      <div class="panel fade-in">
+        <div class="panel-hd">
+          <span class="panel-title"><i class="ti ti-alert-triangle" style="color:var(--maroon-accent)"></i> All Incidents</span>
+          <div class="panel-actions">
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+              <input id="alertSearch" placeholder="Search alerts..." style="width:140px;padding:5px 10px;font-size:11px;border-radius:6px;border:1px solid var(--blk-brd);background:var(--blk);color:var(--text-pr)" onkeyup="if(event.key==='Enter')renderAlerts()">
+              <select id="alertModuleFilter" onchange="renderAlerts()" style="width:auto;padding:5px 10px;font-size:11px;border-radius:6px">
+                <option value="">All modules</option>
+                <option value="waf_engine">WAF</option>
+                <option value="network_monitor">Network</option>
+                <option value="process_monitor">Process</option>
+                <option value="file_monitor">File</option>
+                <option value="malware_scanner">Malware</option>
+                <option value="correlation_engine">Correlation</option>
+                <option value="kill_chain">Kill Chain</option>
+                <option value="anomaly_detector">Anomaly</option>
+                <option value="auth_monitor">Auth</option>
+              </select>
+              <select id="alertSourceFilter" onchange="renderAlerts()" style="width:auto;padding:5px 10px;font-size:11px;border-radius:6px">
+                <option value="">All sources</option>
+              </select>
+              <select id="alertFilter" onchange="renderAlerts()" style="width:auto;padding:5px 10px;font-size:11px;border-radius:6px">
+                <option value="">All severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer">
+                <input type="checkbox" id="alertIncludeLow" onchange="renderAlerts()"> Low
+              </label>
+              <label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer">
+                <input type="checkbox" id="alertExcludeSelfTest" checked onchange="renderAlerts()"> Hide test
+              </label>
+              <button class="btn btn-outline btn-xs" onclick="batchScoreFP()" title="Score all visible alerts for false positives" style="font-size:10px;padding:3px 8px">
+                <i class="ti ti-adjustments"></i> FP Batch
+              </button>
+              <span id="fpBatchStatus" style="font-size:11px;color:var(--text-muted);display:none"></span>
+            </div>
+            <span class="panel-count" id="alertTotal">0 alerts</span>
+          </div>
+        </div>
+        <div class="scroll-table">
+          <table class="data-table">
+            <thead><tr><th>Severity</th><th>Event</th><th>Module</th><th>Source IP</th><th>Time</th><th>Action</th></tr></thead>
+            <tbody id="alertBody"></tbody>
+          </table>
+          <div id="alertPagination" style="padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--blk-brd)">
+            <span style="font-size:11px;color:var(--text-muted)" id="alertPageInfo">1 / 1</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-outline btn-xs" id="alertPrevBtn" onclick="alertPageChange(-1)"><i class="ti ti-chevron-left"></i> Back</button>
+              <button class="btn btn-outline btn-xs" id="alertNextBtn" onclick="alertPageChange(1)">Next <i class="ti ti-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ KILL CHAIN ═══ -->
+    <div class="tab-section" id="tab-killchain">
+      <div class="row2 fade-in">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-swords" style="color:var(--red)"></i> Active Chains</span>
+          </div>
+          <div class="scroll-table">
+            <table class="data-table">
+              <thead><tr><th>Source IP</th><th>Stage</th><th>Progress</th><th>Coverage</th><th>Severity</th></tr></thead>
+              <tbody id="kcBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-timeline" style="color:var(--gold)"></i> Chain Detail</span>
+            <span class="panel-action" id="chainDetailLabel">Click a chain to inspect</span>
+          </div>
+          <div id="chainDetailContent" style="padding:0">
+            <div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:13px">
+              <i class="ti ti-swords" style="font-size:24px;display:block;margin-bottom:10px;opacity:0.3"></i>
+              Select a kill chain IP to view stage timeline and events
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ WAF ═══ -->
+    <div class="tab-section" id="tab-waf">
+      <div class="fade-in">
+        <div class="stats-row" id="wafStatsRow" style="margin-bottom:12px"></div>
+      </div>
+      <div class="row2 fade-in">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-shield" style="color:var(--maroon-accent)"></i> WAF Inspection</span>
+          </div>
+          <div class="waf-test-grid">
+            <div class="form-group">
+              <span class="form-label">HTTP Method</span>
+              <select id="wafMethod"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select>
+            </div>
+            <div class="form-group">
+              <span class="form-label">Source IP</span>
+              <input id="wafIp" value="1.2.3.4" placeholder="e.g. 1.2.3.4">
+            </div>
+          </div>
+          <div class="form-group">
+            <span class="form-label">Target Path</span>
+            <input id="wafPath" value="/" placeholder="/path/to/resource">
+          </div>
+          <div class="form-group">
+            <span class="form-label">Query String</span>
+            <input id="wafQuery" placeholder="e.g. id=1&page=2">
+          </div>
+          <div class="form-group">
+            <span class="form-label">Request Body</span>
+            <textarea id="wafBody" rows="3" placeholder="e.g. {&quot;user&quot;: &quot;admin&quot;}"></textarea>
+          </div>
+          <div style="padding:0 20px 6px">
+            <div class="form-label">Attack payload presets</div>
+          </div>
+          <div class="waf-payload-btns">
+            <button class="waf-payload-btn" onclick="setWafPayload('sqli')"><i class="ti ti-database" style="margin-right:4px"></i>SQLi</button>
+            <button class="waf-payload-btn" onclick="setWafPayload('xss')"><i class="ti ti-code" style="margin-right:4px"></i>XSS</button>
+            <button class="waf-payload-btn" onclick="setWafPayload('cmdi')"><i class="ti ti-terminal" style="margin-right:4px"></i>CMDi</button>
+            <button class="waf-payload-btn" onclick="setWafPayload('traversal')"><i class="ti ti-folder-x" style="margin-right:4px"></i>Traversal</button>
+            <button class="waf-payload-btn" onclick="setWafPayload('ssrf')"><i class="ti ti-server" style="margin-right:4px"></i>SSRF</button>
+            <button class="waf-payload-btn" onclick="setWafPayload('webshell')"><i class="ti ti-bug" style="margin-right:4px"></i>WebShell</button>
+          </div>
+          <div style="padding:0 20px 20px">
+            <button class="btn btn-mar" onclick="testWaf()" style="width:100%">
+              <i class="ti ti-player-play"></i> Execute Inspection
+            </button>
+          </div>
+          <pre id="wafResult" style="display:none"></pre>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-list" style="color:var(--text-muted)"></i> WAF Event Log</span>
+            <span class="panel-action" onclick="renderWafLog()"><i class="ti ti-refresh"></i> Refresh</span>
+          </div>
+          <div class="scroll-table">
+            <table class="data-table">
+              <thead><tr><th>Source IP</th><th>Path</th><th>Rule</th><th>Time</th></tr></thead>
+              <tbody id="wafLogBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── WAF Custom Rules ── -->
+      <div class="panel fade-in" style="margin-top:12px">
+        <div class="panel-hd">
+          <span class="panel-title"><i class="ti ti-settings-cog" style="color:var(--gold)"></i> Custom WAF Rules</span>
+          <div class="panel-actions">
+            <span style="font-size:11px;color:var(--text-muted)" id="wafCustomRuleCount">0 rules</span>
+            <button class="btn btn-outline btn-sm" onclick="showAddWafRuleModal()"><i class="ti ti-plus"></i> Add Rule</button>
+            <button class="btn btn-outline btn-sm" onclick="importCrsRules()" style="color:var(--blue);border-color:var(--blue)" title="Download and import OWASP CRS rules"><i class="ti ti-cloud-download"></i> Import CRS</button>
+            <button class="btn btn-outline btn-sm" onclick="restoreDefaultWafRules()" style="color:var(--gold);border-color:var(--gold)" title="Restore built-in default rules and remove all custom rules"><i class="ti ti-refresh"></i> Restore Defaults</button>
+          </div>
+        </div>
+        <div class="scroll-table">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Attack Type</th><th>Severity</th><th>Contexts</th><th>Score</th><th>Pattern</th><th>Action</th><th>Status</th><th>Default</th><th>Actions</th></tr></thead>
+            <tbody id="wafCustomRulesBody"></tbody>
+          </table>
+          <div id="wafRulesPagination" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--blk-brd)">
+            <span style="font-size:11px;color:var(--text-muted)" id="wafRulePageInfo">Page 1</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-outline btn-xs" id="wafRulesPrevBtn" onclick="wafRulesPage(-1)"><i class="ti ti-chevron-left"></i> Prev</button>
+              <button class="btn btn-outline btn-xs" id="wafRulesNextBtn" onclick="wafRulesPage(1)"><i class="ti ti-chevron-right"></i> Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ THREAT INTEL ═══ -->
+    <div class="tab-section" id="tab-intel">
+      <div class="row3 fade-in">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-search" style="color:var(--maroon-accent)"></i> IP Lookup</span>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:8px">
+              <input id="intelSearch" placeholder="Enter IP address…" style="flex:1" onkeyup="if(event.key==='Enter') searchIntel()">
+              <button class="btn btn-mar btn-sm" onclick="searchIntel()"><i class="ti ti-search"></i> Lookup</button>
+            </div>
+          </div>
+          <div id="intelResult" class="intel-results" style="display:none;padding:0 20px 20px"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-world" style="color:var(--gold)"></i> Top Traffic IPs</span>
+          </div>
+          <div class="scroll-table">
+            <table class="data-table">
+              <thead><tr><th>IP Address</th><th>Hits</th><th>Intel</th><th>Action</th></tr></thead>
+              <tbody id="trafficBody"></tbody>
+            </table>
+            <div id="trafficPagination" style="padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--blk-brd)">
+              <span style="font-size:11px;color:var(--text-muted)" id="trafficPageInfo">Page 1</span>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-outline btn-xs" id="trafficPrevBtn" onclick="trafficPageChange(-1)"><i class="ti ti-chevron-left"></i> Back</button>
+                <button class="btn btn-outline btn-xs" id="trafficNextBtn" onclick="trafficPageChange(1)">Next <i class="ti ti-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-shield-off" style="color:var(--red)"></i> Reputation Summary</span>
+          </div>
+          <div class="intel-grid" id="intelGridFull"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ HARDENING ═══ -->
+    <div class="tab-section" id="tab-hardening">
+      <div class="fade-in">
+        <div class="hard-score-wrap">
+          <svg width="88" height="88" viewBox="0 0 88 88">
+            <circle cx="44" cy="44" r="35" fill="none" stroke="var(--blk-md)" stroke-width="6"/>
+            <circle cx="44" cy="44" r="35" fill="none" stroke="var(--green)" stroke-width="6"
+              stroke-dasharray="186 220" stroke-linecap="round" transform="rotate(-90 44 44)"/>
+            <text x="44" y="50" text-anchor="middle" font-size="20" font-weight="800" fill="var(--text-pr)" id="hardScore">--</text>
+          </svg>
+          <div>
+            <div style="font-size:22px;font-weight:800;color:var(--text-pr);margin-bottom:4px">Security Posture Score</div>
+            <div style="font-size:13px;color:var(--text-muted)" id="hardInfo">Hardening audit pending</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-list-check" style="color:var(--gold)"></i> Hardening Findings</span>
+          </div>
+          <div class="scroll-table">
+            <table class="data-table">
+              <thead><tr><th>Severity</th><th>Finding</th><th>Metric</th></tr></thead>
+              <tbody id="hardBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ AUDIT ═══ -->
+    <div class="tab-section" id="tab-audit">
+      <div class="row2 fade-in">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-scale" style="color:var(--blue)"></i> Audit Log</span>
+          </div>
+          <div class="scroll-table">
+            <table class="data-table">
+              <thead><tr><th>Event</th><th>Actor</th><th>Type</th><th>Time</th></tr></thead>
+              <tbody id="auditBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-shield-check" style="color:var(--green)"></i> Tamper Verification</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 24px;gap:12px">
+            <div style="font-size:48px;font-weight:800;color:var(--green);line-height:1" id="tamperStatus">[OK]</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text-pr)">Audit Trail Integrity Verified</div>
+            <div style="font-size:12px;color:var(--text-muted)" id="auditEntryCount">0 entries</div>
+            <span class="pill pill-green" style="margin-top:4px"><i class="ti ti-lock"></i> Chain intact</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ADD WAF CUSTOM RULE MODAL ── -->
+    <div id="addWafRulePanel" class="modal-overlay" onclick="if(event.target===this)closeAddWafRuleModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title"><i class="ti ti-shield-plus"></i> New WAF Custom Rule</span>
+          <button class="modal-close" onclick="closeAddWafRuleModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="form-label" style="padding:0;margin-bottom:6px">Rule Name</div>
+          <input id="wafRuleName" placeholder="e.g. Block suspicious user-agent" style="width:100%;padding:10px 14px;border-radius:7px">
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="form-label" style="padding:0;margin-bottom:6px">Description</div>
+          <input id="wafRuleDescription" placeholder="Optional description" style="width:100%;padding:10px 14px;border-radius:7px">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <div class="form-label" style="padding:0;margin-bottom:6px">Attack Type</div>
+            <select id="wafRuleAttackType" style="width:100%;padding:10px 14px;border-radius:7px">
+              <option value="custom">Custom</option>
+              <option value="sqli">SQLi</option>
+              <option value="xss">XSS</option>
+              <option value="cmdi">Command Injection</option>
+              <option value="traversal">Path Traversal</option>
+              <option value="ssrf">SSRF</option>
+              <option value="webshell">WebShell</option>
+              <option value="lfi">LFI</option>
+              <option value="smuggling">HTTP Smuggling</option>
+              <option value="ssti">SSTI</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label" style="padding:0;margin-bottom:6px">Severity</div>
+            <select id="wafRuleSeverity" style="width:100%;padding:10px 14px;border-radius:7px">
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="form-label" style="padding:0;margin-bottom:6px">Regex Pattern (applied to URL path + query + body)</div>
+          <textarea id="wafRulePattern" rows="3" placeholder="e.g. (?i)evil-pattern|bad-string" style="width:100%;padding:10px 14px;border-radius:7px;font-family:var(--font-mono);font-size:12px"></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <div class="form-label" style="padding:0;margin-bottom:6px">Action</div>
+            <select id="wafRuleAction" style="width:100%;padding:10px 14px;border-radius:7px">
+              <option value="block">Block</option>
+              <option value="log">Log Only</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label" style="padding:0;margin-bottom:6px">Anomaly Score</div>
+            <input id="wafRuleScore" type="number" min="1" max="10" value="3" style="width:100%;padding:10px 14px;border-radius:7px">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <div class="form-label" style="padding:0;margin-bottom:6px">Contexts</div>
+            <select id="wafRuleContexts" style="width:100%;padding:10px 14px;border-radius:7px">
+              <option value="ALL">ALL</option>
+              <option value="ARGS">ARGS (query params)</option>
+              <option value="BODY">BODY (POST body)</option>
+              <option value="PATH">PATH (URL path)</option>
+              <option value="HEADERS">HEADERS</option>
+              <option value="ARGS|BODY">ARGS|BODY</option>
+              <option value="ARGS|PATH">ARGS|PATH</option>
+              <option value="BODY|PATH">BODY|PATH</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label" style="padding:0;margin-bottom:6px">Keywords (comma-separated, for AC pre-filter)</div>
+            <input id="wafRuleKeywords" placeholder="e.g. select,union,exec" style="width:100%;padding:10px 14px;border-radius:7px;font-family:var(--font-mono);font-size:11px">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer;margin-bottom:16px">
+          <input type="checkbox" id="wafRuleEnabled" checked> Rule enabled
+        </label>
+        <button class="btn btn-mar" onclick="createWafCustomRule()" style="width:100%"><i class="ti ti-device-floppy"></i> Save Rule</button>
+      </div>
+    </div>
+
+    <!-- ═══ REPORTS ═══ -->
+    <div class="tab-section" id="tab-reports">
+      <div id="reportsContent" class="fade-in"></div>
+    </div>
+
+    <!-- ═══ PROCESSES ═══ -->
+    <div class="tab-section" id="tab-processes">
+      <div class="panel fade-in">
+        <div class="panel-hd">
+          <span class="panel-title"><i class="ti ti-cpu" style="color:var(--green)"></i> Process Monitor</span>
+          <div class="panel-actions">
+            <button class="btn btn-outline btn-sm" onclick="renderProcesses()"><i class="ti ti-refresh"></i> Refresh</button>
+          </div>
+        </div>
+        <div class="scroll-table">
+          <table class="data-table">
+            <thead><tr><th>PID</th><th>Process Name</th><th>User</th><th>CPU %</th><th>RSS</th><th>Status</th></tr></thead>
+            <tbody id="procBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ NETWORK ═══ -->
+    <div class="tab-section" id="tab-network">
+      <div class="panel fade-in">
+        <div class="panel-hd">
+          <span class="panel-title"><i class="ti ti-network" style="color:var(--blue)"></i> Network Connections</span>
+          <div class="panel-actions">
+            <button class="btn btn-outline btn-sm" onclick="renderNetwork()"><i class="ti ti-refresh"></i> Refresh</button>
+          </div>
+        </div>
+        <div class="scroll-table">
+          <table class="data-table">
+            <thead><tr><th>Process</th><th>Local Address</th><th>Remote Address</th><th>Port</th><th>Status</th></tr></thead>
+            <tbody id="netBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ FILES ═══ -->
+    <div class="tab-section" id="tab-files">
+      <div class="row2 fade-in">
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-folder" style="color:var(--gold)"></i> Monitored Directories</span>
+            <button class="btn btn-outline btn-sm" onclick="showAddDirModal()"><i class="ti ti-plus"></i> Add</button>
+          </div>
+          <div class="scroll-table">
+            <table class="data-table">
+              <thead><tr><th>Directory</th><th style="width:80px">Action</th></tr></thead>
+              <tbody id="dirBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title"><i class="ti ti-file" style="color:var(--blue)"></i> Specific Files</span>
+            <button class="btn btn-outline btn-sm" onclick="showAddFileModal()"><i class="ti ti-plus"></i> Add</button>
+          </div>
+          <div class="scroll-table">
+            <table class="data-table">
+              <thead><tr><th>File Path</th><th style="width:80px">Action</th></tr></thead>
+              <tbody id="fileSpecBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="panel fade-in">
+        <div class="panel-hd">
+          <span class="panel-title"><i class="ti ti-file-search" style="color:var(--gold)"></i> File Integrity Monitor</span>
+          <div class="panel-actions">
+            <button class="btn btn-outline btn-sm" onclick="renderFiles()"><i class="ti ti-refresh"></i> Refresh</button>
+          </div>
+        </div>
+        <div class="scroll-table">
+          <table class="data-table">
+            <thead><tr><th>Path</th><th>Hash</th><th>Size</th><th>Last Seen</th><th style="width:80px">Action</th></tr></thead>
+            <tbody id="fileBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ LOGINS ═══ -->
+    <div class="tab-section" id="tab-logins">
+      <div class="panel fade-in">
+        <div class="panel-hd">
+          <span class="panel-title"><i class="ti ti-fingerprint" style="color:var(--maroon)"></i> Login Monitor</span>
+          <div class="panel-actions">
+            <span style="font-size:11px;color:var(--text-muted)" id="loginSummary"></span>
+            <select id="loginServiceFilter" onchange="renderLogin()" style="background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:11px">
+              <option value="">All services</option>
+              <option value="ssh">SSH</option>
+              <option value="ftp">FTP</option>
+              <option value="mysql">MySQL</option>
+              <option value="postgresql">PostgreSQL</option>
+              <option value="nginx">Nginx</option>
+              <option value="apache">Apache</option>
+              <option value="web">Web</option>
+              <option value="sudo">Sudo</option>
+              <option value="cron">Cron</option>
+            </select>
+            <select id="loginStatusFilter" onchange="renderLogin()" style="background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:11px">
+              <option value="">All status</option>
+              <option value="success">Success</option>
+              <option value="failure">Failure</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
+        </div>
+        <div id="loginStatsCards" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:11px;color:var(--text-muted)" id="loginPageInfo">1 / 1</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-outline btn-xs" id="loginPrevBtn" onclick="loginPageChange(-1)"><i class="ti ti-chevron-left"></i> Back</button>
+            <button class="btn btn-outline btn-xs" id="loginNextBtn" onclick="loginPageChange(1)">Next <i class="ti ti-chevron-right"></i></button>
+          </div>
+        </div>
+        <div class="scroll-table">
+          <table class="data-table">
+            <thead><tr><th>Time</th><th>Source IP</th><th>Username</th><th>Service</th><th>Status</th><th>Port</th><th>Log Source</th><th>Actions</th></tr></thead>
+            <tbody id="loginBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ FLEET ═══ -->
+    <div class="tab-section" id="tab-fleet">
+      <div class="panel fade-in">
+        <div class="panel-hd">
+          <span class="panel-title"><i class="ti ti-server" style="color:var(--blue)"></i> Fleet Agents</span>
+          <div class="panel-actions">
+            <span style="font-size:11px;color:var(--text-muted)" id="fleetSummary"></span>
+          </div>
+        </div>
+        <div class="scroll-table">
+          <table class="data-table">
+            <thead><tr><th>Agent ID</th><th>Status</th><th>Version</th><th>Last Heartbeat</th><th>Uptime</th><th>Events</th><th>Actions</th></tr></thead>
+            <tbody id="fleetBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONFIG PUSH MODAL ── -->
+    <div id="configPushPanel" class="modal-overlay" onclick="if(event.target===this)closeConfigPushModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title"><i class="ti ti-settings"></i> Push Config to <span id="configPushAgentName"></span></span>
+          <button class="modal-close" onclick="closeConfigPushModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="form-label" style="padding:0;margin-bottom:6px">Config JSON (key-value pairs to override)</div>
+          <textarea id="configPushData" rows="8" style="width:100%;padding:10px 14px;border-radius:7px;font-family:var(--font-mono);font-size:12px">{
+  "log_level": "DEBUG",
+  "z_score_threshold": 2.5
+}</textarea>
+        </div>
+        <button class="btn btn-mar" onclick="pushAgentConfig()" style="width:100%"><i class="ti ti-device-floppy"></i> Push Config</button>
+      </div>
+    </div>
+
+    <!-- ── AGENT EVENTS MODAL ── -->
+    <div id="agentEventsPanel" class="modal-overlay" onclick="if(event.target===this)closeAgentEvents()">
+      <div class="modal" style="width:700px;max-width:92vw">
+        <div class="modal-header">
+          <span class="modal-title"><i class="ti ti-list"></i> Events from <span id="agentEventsName"></span></span>
+          <button class="modal-close" onclick="closeAgentEvents()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="scroll-table" style="max-height:55vh">
+          <table class="data-table">
+            <thead><tr><th>Type</th><th>Timestamp</th><th>Data</th></tr></thead>
+            <tbody id="agentEventsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FLOATING CHAT WIDGET ── -->
+    <div id="chatWidgetBtn" onclick="toggleChat()" title="Security Assistant">
+      <i class="ti ti-message"></i>
+    </div>
+    <div id="chatWidgetPanel">
+      <div class="chat-widget-header">
+        <span><i class="ti ti-message"></i> Security Assistant</span>
+        <button class="chat-widget-close" onclick="toggleChat()"><i class="ti ti-x"></i></button>
+      </div>
+      <div id="chatMessages" style="flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:8px"></div>
+      <div style="padding:8px 12px;border-top:1px solid var(--blk-brd);display:flex;gap:6px">
+        <input id="chatInput" placeholder="Ask anything..." style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--blk-brd);background:var(--blk);color:var(--text-pr);font-size:12px" onkeydown="if(event.key==='Enter')sendChatMessage()">
+        <button class="btn btn-mar btn-xs" onclick="sendChatMessage()" style="padding:6px 12px;font-size:12px"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+
+    <!-- ── ADD DIRECTORY MODAL ── -->
+    <div id="addDirPanel" class="modal-overlay" onclick="if(event.target===this)closeAddDirModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title"><i class="ti ti-folder-plus"></i> Add Directory</span>
+          <button class="modal-close" onclick="closeAddDirModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="margin-bottom:16px">
+          <div class="form-label" style="padding:0;margin-bottom:8px">Directory Path</div>
+          <input id="newDirPath" placeholder="e.g. /var/www/html" style="width:100%;padding:10px 14px;border-radius:7px">
+        </div>
+        <button class="btn btn-mar" onclick="addMonitoredDir()" style="width:100%"><i class="ti ti-plus"></i> Add & Monitor</button>
+      </div>
+    </div>
+
+    <!-- ── ADD FILE MODAL ── -->
+    <div id="addFilePanel" class="modal-overlay" onclick="if(event.target===this)closeAddFileModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title"><i class="ti ti-file-plus"></i> Add Specific File</span>
+          <button class="modal-close" onclick="closeAddFileModal()"><i class="ti ti-x"></i></button>
+        </div>
+        <div style="margin-bottom:16px">
+          <div class="form-label" style="padding:0;margin-bottom:8px">File Path</div>
+          <input id="newFilePath" placeholder="e.g. /etc/nginx/nginx.conf" style="width:100%;padding:10px 14px;border-radius:7px">
+        </div>
+        <button class="btn btn-mar" onclick="addSpecificFile()" style="width:100%"><i class="ti ti-plus"></i> Add File</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /dash -->
+
+<!-- ── SETTINGS MODAL ── -->
+<div id="settingsPanel" class="modal-overlay" onclick="if(event.target===this)closeSettings()">
+  <div class="modal" style="width:720px;max-width:94vw">
+    <div class="modal-header">
+      <span class="modal-title"><i class="ti ti-settings"></i> Settings</span>
+      <button class="modal-close" onclick="closeSettings()"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div style="padding:4px 0;display:flex;gap:0;border-bottom:1px solid var(--blk-brd);overflow-x:auto;flex-shrink:0">
+      <button class="settings-tab active" data-settings-tab="general" onclick="switchSettingsTab('general')">General</button>
+      <button class="settings-tab" data-settings-tab="keys" onclick="switchSettingsTab('keys')">API Keys</button>
+      <button class="settings-tab" data-settings-tab="engine" onclick="switchSettingsTab('engine')">Engine</button>
+      <button class="settings-tab" data-settings-tab="ai" onclick="switchSettingsTab('ai')">AI Providers</button>
+      <button class="settings-tab" data-settings-tab="intel" onclick="switchSettingsTab('intel')">Intel</button>
+      <button class="settings-tab" data-settings-tab="siem" onclick="switchSettingsTab('siem')">SIEM</button>
+      <button class="settings-tab" data-settings-tab="fleet" onclick="switchSettingsTab('fleet')">Fleet</button>
+      <button class="settings-tab" data-settings-tab="license" onclick="switchSettingsTab('license')">License</button>
+    </div>
+
+    <div style="max-height:65vh;overflow-y:auto;padding:0">
+    <!-- General -->
+    <div class="settings-pane" id="settings-general">
+      <div style="padding:20px 24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Refresh Interval</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input id="refreshInterval" type="number" value="15" min="5" max="120" onchange="setRefreshInterval(this.value)">
+              <span style="font-size:12px;color:var(--text-muted);white-space:nowrap">seconds</span>
+            </div>
+          </div>
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Theme</span>
+            <select id="themeSelect" onchange="setTheme(this.value)">
+              <option value="maroon">Maroon Dark</option>
+              <option value="classic">Classic Dark</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Keys -->
+    <div class="settings-pane" id="settings-keys" style="display:none">
+      <div style="padding:20px 24px">
+        <div style="display:flex;flex-direction:column;gap:14px">
+
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span class="form-label" style="margin:0;padding:0">AbuseIPDB</span>
+              <span class="pill-svc" data-service="abuseipdb" style="font-size:10px">unset</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <input id="apiKeyAbuseIPDB" type="password" placeholder="AbuseIPDB API key..." spellcheck="false" style="flex:1">
+              <button class="btn btn-outline btn-xs" onclick="clearApiKey('abuseipdb')" style="white-space:nowrap;padding:4px 8px;font-size:10px" title="Remove saved key"><i class="ti ti-trash"></i></button>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:3px">IP reputation lookups against AbuseIPDB</div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span class="form-label" style="margin:0;padding:0">VirusTotal</span>
+              <span class="pill-svc" data-service="virustotal" style="font-size:10px">unset</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <input id="apiKeyVT" type="password" placeholder="VirusTotal API key..." spellcheck="false" style="flex:1">
+              <button class="btn btn-outline btn-xs" onclick="clearApiKey('virustotal')" style="white-space:nowrap;padding:4px 8px;font-size:10px" title="Remove saved key"><i class="ti ti-trash"></i></button>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:3px">File hash scanning against VirusTotal</div>
+          </div>
+          <button class="btn btn-mar btn-sm" onclick="saveApiKeys()" style="width:100%;margin-top:4px">
+            <i class="ti ti-device-floppy"></i> Save API Keys
+          </button>
+          <div id="apiKeysResult" style="font-size:11px;min-height:0"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Engine -->
+    <div class="settings-pane" id="settings-engine" style="display:none">
+      <div style="padding:20px 24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">CPU Limit (%)</span>
+            <input id="cfgCpuLimit" type="number" min="1" max="100" value="90">
+          </div>
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Memory Limit (MB)</span>
+            <input id="cfgMemLimit" type="number" min="64" max="65536" value="1024">
+          </div>
+        </div>
+        <div class="form-group" style="padding:0;margin:0;margin-bottom:14px">
+          <span class="form-label">Max Connections Per IP</span>
+          <input id="cfgMaxConns" type="number" min="1" max="10000" value="100">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding:14px;background:var(--blk);border-radius:8px;border:1px solid var(--blk-brd);margin-bottom:4px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer">
+            <input type="checkbox" id="cfgScanOnModify" checked> Scan files on modify
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer">
+            <input type="checkbox" id="cfgAutoKill" checked> Auto-kill high usage processes
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer">
+            <input type="checkbox" id="cfgAnomalyDetection" checked> Enable anomaly detection (ML)
+          </label>
+        </div>
+        <button class="btn btn-mar btn-sm" onclick="saveConfig()" style="width:100%;margin-top:6px">
+          <i class="ti ti-device-floppy"></i> Save Configuration
+        </button>
+        <div id="configResult" style="font-size:11px;margin-top:8px;min-height:0"></div>
+      </div>
+    </div>
+
+    <!-- AI Providers -->
+    <div class="settings-pane" id="settings-ai" style="display:none">
+      <div style="padding:20px 24px">
+        <div id="aiProviderList"></div>
+        <button class="btn btn-mar btn-sm" onclick="showAddProviderForm()" style="width:100%;margin-top:8px"><i class="ti ti-plus"></i> Add Provider</button>
+      </div>
+    </div>
+
+    <!-- Intel -->
+    <div class="settings-pane" id="settings-intel" style="display:none">
+      <div style="padding:20px 24px">
+        <div style="padding:14px;background:var(--blk);border-radius:8px;border:1px solid var(--blk-brd);margin-bottom:16px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer;margin-bottom:10px">
+            <input type="checkbox" id="cfgAutoBlockEnabled"> Auto-block IPs by reputation
+          </label>
+          <div class="form-group" style="padding:0;margin:0;margin-bottom:4px">
+            <span class="form-label">Abuse score threshold (%)</span>
+            <input id="cfgAutoBlockThreshold" type="number" min="1" max="100" value="80">
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px">IPs with abuse score at or above this value are automatically blocked. Higher values are stricter.</div>
+        </div>
+        <div style="padding:14px;background:var(--blk);border-radius:8px;border:1px solid var(--blk-brd);margin-bottom:4px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer;margin-bottom:8px">
+            <input type="checkbox" id="cfgIntelEnabled" checked> Enable threat intelligence lookups
+          </label>
+          <div style="font-size:10px;color:var(--text-muted)">Disables AbuseIPDB reputation checks when turned off. WAF and login monitor continue to function independently.</div>
+        </div>
+        <button class="btn btn-mar btn-sm" onclick="saveIntelConfig()" style="width:100%;margin-top:10px">
+          <i class="ti ti-device-floppy"></i> Save Intel Settings
+        </button>
+        <div id="intelConfigResult" style="font-size:11px;margin-top:8px;min-height:0"></div>
+      </div>
+    </div>
+
+    <!-- SIEM -->
+    <div class="settings-pane" id="settings-siem" style="display:none">
+      <div style="padding:20px 24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Format</span>
+            <select id="cfgSiemFormat">
+              <option value="cef">CEF (ArcSight)</option>
+              <option value="json">JSON</option>
+              <option value="leef">LEEF (QRadar)</option>
+            </select>
+          </div>
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Min Severity</span>
+            <select id="cfgSiemSeverity">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Host</span>
+            <input id="cfgSiemHost" type="text" value="127.0.0.1" placeholder="Syslog host...">
+          </div>
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Port</span>
+            <input id="cfgSiemPort" type="number" min="1" max="65535" value="514">
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding:14px;background:var(--blk);border-radius:8px;border:1px solid var(--blk-brd);margin-bottom:16px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer">
+            <input type="checkbox" id="cfgSiemEnabled"> Enable SIEM forwarding
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer">
+            <input type="checkbox" id="cfgSiemTls"> Use TLS
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec);cursor:pointer">
+            <input type="checkbox" id="cfgSiemTlsVerify" checked> Verify TLS certificate
+          </label>
+        </div>
+        <button class="btn btn-mar btn-sm" onclick="saveSiemConfig()" style="width:100%">
+          <i class="ti ti-device-floppy"></i> Save SIEM Settings
+        </button>
+        <div id="siemConfigResult" style="font-size:11px;margin-top:8px;min-height:0"></div>
+      </div>
+    </div>
+
+    <!-- Fleet -->
+    <div class="settings-pane" id="settings-fleet" style="display:none">
+      <div style="padding:20px 24px">
+        <div class="form-group" style="padding:0;margin:0;margin-bottom:14px">
+          <span class="form-label">Agent Mode</span>
+          <select id="cfgFleetMode">
+            <option value="standalone">Standalone</option>
+            <option value="hub">Hub (central server)</option>
+            <option value="agent">Agent (ships to hub)</option>
+          </select>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px">Standalone: no fleet. Hub: receives agents. Agent: ships alerts to hub.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Hub Host</span>
+            <input id="cfgFleetHubHost" type="text" placeholder="Hub server IP or hostname...">
+          </div>
+          <div class="form-group" style="padding:0;margin:0">
+            <span class="form-label">Hub Port</span>
+            <input id="cfgFleetHubPort" type="number" min="1" max="65535" value="9001">
+          </div>
+        </div>
+        <div class="form-group" style="padding:0;margin:0;margin-bottom:16px">
+          <span class="form-label">Agent ID</span>
+          <input id="cfgFleetAgentId" type="text" placeholder="Auto (hostname)...">
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px">Leave empty to use hostname</div>
+        </div>
+        <button class="btn btn-mar btn-sm" onclick="saveFleetConfig()" style="width:100%">
+          <i class="ti ti-device-floppy"></i> Save Fleet Settings
+        </button>
+        <div id="fleetConfigResult" style="font-size:11px;margin-top:8px;min-height:0"></div>
+      </div>
+    </div>
+
+    <!-- License -->
+    <div class="settings-pane" id="settings-license" style="display:none">
+      <div style="padding:20px 24px">
+        <div id="licenseStatus" style="font-size:12px;color:var(--text-muted);margin-bottom:14px;padding:14px;background:var(--blk);border-radius:8px;border:1px solid var(--blk-brd)">Loading license status...</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="licenseKeyInput" placeholder="Enter license key..." spellcheck="false" style="flex:1;padding:10px 14px;border-radius:7px;border:1px solid var(--blk-brd);background:var(--blk);color:var(--text-pr);font-size:12px;font-family:var(--font-mono)">
+          <button class="btn btn-mar btn-sm" onclick="applyLicenseKey()" style="padding:8px 16px;font-size:12px"><i class="ti ti-key"></i> Apply</button>
+        </div>
+        <div id="licenseResult" style="font-size:11px;min-height:0"></div>
+      </div>
+    </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/app.js?v=2.1"></script>
+<script>
+let currentUserRole = 'read_only';
+
+async function initUserRole() {
+  const data = await req('/auth/me');
+  if (data?.role) {
+    currentUserRole = data.role;
+    document.getElementById('userLabel').textContent = data.username;
+    // Hide admin-only nav items for non-admin users
+    if (currentUserRole !== 'admin') {
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    }
+  }
+}
+initUserRole();
+
+let _settingsIntelCfg = {};
+
+function switchSettingsTab(tab) {
+  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.settings-pane').forEach(p => p.style.display = 'none');
+  const tabBtn = document.querySelector(`.settings-tab[data-settings-tab="${tab}"]`);
+  if (tabBtn) tabBtn.classList.add('active');
+  const pane = document.getElementById(`settings-${tab}`);
+  if (pane) pane.style.display = '';
+  if (tab === 'ai') loadAiProviders();
+}
+
+async function openSettings() {
+  document.getElementById('settingsPanel').classList.add('open');
+  switchSettingsTab('general');
+  const [cfg, intelCfg, lic] = await Promise.all([
+    req('/config/platform'),
+    req('/config/intel'),
+    req('/license'),
+  ]);
+  loadApiKeys();
+  if (cfg) {
+    document.getElementById('cfgCpuLimit').value = cfg.processes?.cpu_limit || 90;
+    document.getElementById('cfgMemLimit').value = cfg.processes?.mem_limit_mb || 1024;
+    document.getElementById('cfgMaxConns').value = cfg.network?.max_connections_per_ip || 100;
+    document.getElementById('cfgScanOnModify').checked = cfg.monitoring?.scan_on_modify !== false;
+    document.getElementById('cfgAutoKill').checked = cfg.processes?.auto_kill_high_usage === true;
+    document.getElementById('cfgAnomalyDetection').checked = cfg.anomaly_detection?.enabled !== false;
+    const siem = cfg.siem || {};
+    document.getElementById('cfgSiemEnabled').checked = siem.enabled === true;
+    document.getElementById('cfgSiemFormat').value = siem.format || 'cef';
+    document.getElementById('cfgSiemHost').value = siem.host || '127.0.0.1';
+    document.getElementById('cfgSiemPort').value = siem.port || 514;
+    document.getElementById('cfgSiemSeverity').value = siem.min_severity || 'low';
+    document.getElementById('cfgSiemTls').checked = siem.tls === true;
+    document.getElementById('cfgSiemTlsVerify').checked = siem.tls_verify !== false;
+    const fleet = cfg.agent || {};
+    document.getElementById('cfgFleetMode').value = fleet.mode || 'standalone';
+    document.getElementById('cfgFleetHubHost').value = fleet.hub_host || '';
+    document.getElementById('cfgFleetHubPort').value = fleet.hub_port || 9001;
+    document.getElementById('cfgFleetAgentId').value = fleet.agent_id || '';
+  }
+  if (intelCfg) {
+    document.getElementById('cfgAutoBlockEnabled').checked = intelCfg.auto_block_enabled === true;
+    document.getElementById('cfgAutoBlockThreshold').value = intelCfg.auto_block_threshold ?? 80;
+    document.getElementById('cfgIntelEnabled').checked = intelCfg.enabled !== false;
+    _settingsIntelCfg = intelCfg;
+  }
+  const licEl = document.getElementById('licenseStatus');
+  if (lic && licEl) {
+    const unlocked = Object.entries(lic.features || {}).filter(([,v]) => v).map(([k]) => k).join(', ') || 'none';
+    const expiry = lic.expires_at ? new Date(lic.expires_at * 1000).toLocaleDateString() : 'never';
+    licEl.innerHTML = lic.has_license
+      ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+           <span style="color:var(--green);font-size:18px"><i class="ti ti-circle-check"></i></span>
+           <div><div style="font-weight:700;color:var(--text-pr);font-size:14px">Licensed</div>
+           <div style="font-size:11px;color:var(--text-muted)">Features: <code style="color:var(--text-pr)">${unlocked}</code> &middot; Expires: ${expiry}</div></div>
+         </div>`
+      : `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+           <span style="color:var(--gold);font-size:18px"><i class="ti ti-key"></i></span>
+           <div><div style="font-weight:700;color:var(--text-pr);font-size:14px">Free Tier</div>
+           <div style="font-size:11px;color:var(--text-muted)">Enter a license key below to unlock premium features</div></div>
+         </div>`;
+  }
+  document.getElementById('licenseResult').innerHTML = '';
+}
+function closeSettings(){document.getElementById('settingsPanel').classList.remove('open')}
+
+async function loadApiKeys() {
+  const data = await req('/config/api-keys');
+  if (data?.configured) {
+    const svcPills = { abuseipdb: 'apiKeyAbuseIPDB', virustotal: 'apiKeyVT' };
+    for (const [svc, inputId] of Object.entries(svcPills)) {
+      const pill = document.querySelector(`.pill-svc[data-service="${svc}"]`);
+      const input = document.getElementById(inputId);
+      if (pill) {
+        const isSet = data.configured[svc] === true;
+        pill.textContent = isSet ? 'saved' : 'unset';
+        pill.className = 'pill-svc ' + (isSet ? 'set' : 'unset');
+      }
+      if (input) input.placeholder = data.configured[svc] ? '...... (saved)' : input.dataset?.placeholder || input.placeholder;
+    }
+  }
+}
+
+function clearApiKey(svc) {
+  const id = svc === 'abuseipdb' ? 'apiKeyAbuseIPDB' : 'apiKeyVT';
+  document.getElementById(id).value = '';
+  saveApiKeys();
+}
+
+async function saveApiKeys() {
+  const fields = [
+    { id: 'apiKeyAbuseIPDB', key: 'abuseipdb' },
+    { id: 'apiKeyVT', key: 'virustotal' },
+  ];
+  const keys = {};
+  const resultEl = document.getElementById('apiKeysResult');
+  for (const f of fields) {
+    const val = document.getElementById(f.id).value.trim();
+    keys[f.key] = val;
+  }
+  const hasAny = Object.values(keys).some(v => v);
+  if (!hasAny) {
+    resultEl.innerHTML = '<span style="color:var(--gold)">All keys are empty  -  nothing to save</span>';
+    return;
+  }
+  resultEl.innerHTML = '<span style="color:var(--text-muted)"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Saving...</span>';
+  const res = await req('/config/api-keys', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(keys),
+  });
+  if (res?.success) {
+    let html = '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> Keys saved</span>';
+    const v = res.validations || {};
+    if (v.abuseipdb === true) html += '<br><span style="color:var(--green);font-size:11px">  AbuseIPDB: valid</span>';
+    else if (v.abuseipdb === false) html += '<br><span style="color:var(--red);font-size:11px">  AbuseIPDB: invalid</span>';
+    resultEl.innerHTML = html;
+    fields.forEach(f => document.getElementById(f.id).value = '');
+    loadApiKeys();
+  } else {
+    resultEl.innerHTML = '<span style="color:var(--red)"><i class="ti ti-alert-triangle"></i> ' + (res?.detail || 'Failed to save') + '</span>';
+  }
+}
+
+async function saveConfig() {
+  const resultEl = document.getElementById('configResult');
+  resultEl.innerHTML = '<span style="color:var(--text-muted)"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Saving...</span>';
+  await req('/config/platform', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ section: 'processes', updates: {
+      cpu_limit: parseFloat(document.getElementById('cfgCpuLimit').value) || 90,
+      mem_limit_mb: parseInt(document.getElementById('cfgMemLimit').value) || 1024,
+      auto_kill_high_usage: document.getElementById('cfgAutoKill').checked,
+    }})
+  });
+  await req('/config/platform', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ section: 'monitoring', updates: {
+      scan_on_modify: document.getElementById('cfgScanOnModify').checked,
+    }})
+  });
+  await req('/config/platform', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ section: 'network', updates: {
+      max_connections_per_ip: parseInt(document.getElementById('cfgMaxConns').value) || 100,
+    }})
+  });
+  await req('/config/platform', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ section: 'anomaly_detection', updates: {
+      enabled: document.getElementById('cfgAnomalyDetection').checked,
+    }})
+  });
+  resultEl.innerHTML = '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> Engine configuration saved</span>';
+  setTimeout(() => resultEl.innerHTML = '', 3000);
+}
+
+async function saveIntelConfig() {
+  const resultEl = document.getElementById('intelConfigResult');
+  resultEl.innerHTML = '<span style="color:var(--text-muted)"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Saving...</span>';
+  await req('/config/intel', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      enabled: document.getElementById('cfgIntelEnabled').checked,
+      auto_block_enabled: document.getElementById('cfgAutoBlockEnabled').checked,
+      auto_block_threshold: parseInt(document.getElementById('cfgAutoBlockThreshold').value) || 80,
+    })
+  });
+  resultEl.innerHTML = '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> Intel settings saved</span>';
+  setTimeout(() => resultEl.innerHTML = '', 3000);
+}
+
+async function saveSiemConfig() {
+  const resultEl = document.getElementById('siemConfigResult');
+  resultEl.innerHTML = '<span style="color:var(--text-muted)"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Saving...</span>';
+  await req('/config/platform', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ section: 'siem', updates: {
+      enabled: document.getElementById('cfgSiemEnabled').checked,
+      format: document.getElementById('cfgSiemFormat').value,
+      host: document.getElementById('cfgSiemHost').value || '127.0.0.1',
+      port: parseInt(document.getElementById('cfgSiemPort').value) || 514,
+      min_severity: document.getElementById('cfgSiemSeverity').value,
+      tls: document.getElementById('cfgSiemTls').checked,
+      tls_verify: document.getElementById('cfgSiemTlsVerify').checked,
+    }})
+  });
+  resultEl.innerHTML = '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> SIEM settings saved</span>';
+  setTimeout(() => resultEl.innerHTML = '', 3000);
+}
+
+async function saveFleetConfig() {
+  const resultEl = document.getElementById('fleetConfigResult');
+  resultEl.innerHTML = '<span style="color:var(--text-muted)"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Saving...</span>';
+  await req('/config/platform', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ section: 'agent', updates: {
+      mode: document.getElementById('cfgFleetMode').value,
+      hub_host: document.getElementById('cfgFleetHubHost').value || '',
+      hub_port: parseInt(document.getElementById('cfgFleetHubPort').value) || 9001,
+      agent_id: document.getElementById('cfgFleetAgentId').value || '',
+    }})
+  });
+  resultEl.innerHTML = '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> Fleet settings saved</span>';
+  setTimeout(() => resultEl.innerHTML = '', 3000);
+}
+
+async function applyLicenseKey() {
+  const key = document.getElementById('licenseKeyInput').value.trim();
+  const resultEl = document.getElementById('licenseResult');
+  if (!key) { resultEl.innerHTML = '<span style="color:var(--red)">Enter a license key</span>'; return; }
+  resultEl.innerHTML = '<span style="color:var(--text-muted)">Applying...</span>';
+  const res = await req('/license/apply', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key }),
+  });
+  if (res?.success) {
+    resultEl.innerHTML = '<span style="color:var(--green)"><i class="ti ti-circle-check"></i> License applied successfully</span>';
+    document.getElementById('licenseKeyInput').value = '';
+    _cachedLicense = null;
+    refreshPremiumUI();
+    openSettings(); // refresh
+    toast('Premium features unlocked!', 'success');
+  } else {
+    const errMsg = res?.error || res?.detail || 'Invalid key';
+    resultEl.innerHTML = '<span style="color:var(--red)"><i class="ti ti-alert-triangle"></i> ' + errMsg + '</span>';
+  }
+}
+</script>
+<script>
+// ─── Icon fallback: replace Tabler Icons with Unicode if CDN fails ───
+(function() {
+  var testEl = document.createElement('i');
+  testEl.className = 'ti ti-shield';
+  document.body.appendChild(testEl);
+  var loaded = getComputedStyle(testEl).fontFamily.includes('tabler-icons') ||
+               getComputedStyle(testEl).fontFamily.includes('Tabler');
+  document.body.removeChild(testEl);
+
+  if (!loaded) {
+    var iconMap = {
+      'ti-settings': 'S', 'ti-logout': 'X', 'ti-refresh': 'R',
+      'ti-shield': 'S', 'ti-alert-triangle': '!', 'ti-check': 'OK',
+      'ti-layout-dashboard': 'D', 'ti-alert-circle': 'O',
+      'ti-sparkles': '*', 'ti-swords': 'X', 'ti-world': 'W',
+      'ti-file': 'F', 'ti-shield-check': 'OK', 'ti-adjustments': 'Z',
+      'ti-info-circle': 'i', 'ti-circle-check': 'OK',
+      'ti-loader': '...', 'ti-virus': 'V', 'ti-scan': '/',
+      'ti-network': 'N', 'ti-cpu': 'C', 'ti-database': 'DB',
+      'ti-activity': '^', 'ti-robot': 'A', 'ti-message': 'M',
+      'ti-bell-ringing': 'B', 'ti-arrow-right': '>', 'ti-pie-chart': 'P',
+      'ti-chart-bar': 'B', 'ti-chart-histogram': 'H', 'ti-cpu': 'C',
+      'ti-transfer': 'T', 'ti-link': 'L', 'ti-lock': 'L',
+      'ti-fingerprint': 'F', 'ti-chart-line': 'L',
+      'ti-send': '>', 'ti-x': 'X', 'ti-plus': '+', 'ti-folder-plus': '+',
+      'ti-shield-off': 'S', 'ti-shield-lock': 'S', 'ti-world-off': 'W',
+      'ti-shield-check': 'OK', 'ti-cpu-off': 'C', 'ti-chart-bar-off': 'B',
+    };
+    document.querySelectorAll('i[class*="ti-"]').forEach(function(el) {
+      var cls = Array.from(el.classList).find(function(c) { return c.startsWith('ti-'); });
+      if (cls && iconMap[cls]) {
+        el.textContent = iconMap[cls];
+        el.style.fontSize = 'inherit';
+        el.style.fontStyle = 'normal';
+      } else if (cls) {
+        el.textContent = '?';
+        el.style.fontSize = 'inherit';
+        el.style.fontStyle = 'normal';
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bwe-api",
+  "main": "worker.js",
+  "compatibility_date": "2025-07-01",
+  "d1_databases": [
+    {
+      "binding": "BWE_DB",
+      "database_name": "bwe-mock",
+      "database_id": "6a7604b4-48b2-4174-bb2a-47c457da459a"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "AUDIT_TRAIL",
+      "id": "6c3067722e164925b45b37547252acd4"
+    }
+  ],
+  "vectorize": [
+    {
+      "binding": "VECTOR_INDEX",
+      "index_name": "bwe-vector-index"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
+  },
+  "vars": {
+    "ENVIRONMENT": "demo"
+  }
+}

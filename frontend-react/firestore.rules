@@ -1,0 +1,23 @@
+﻿rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if request is from the admin email
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'k.makmanhossain@gmail.com';
+    }
+
+    // Rules for contact messages collection
+    match /contact_messages/{messageId} {
+      // Anyone can send a message
+      allow create: if request.resource.data.name is string 
+                    && request.resource.data.email is string
+                    && request.resource.data.message is string
+                    && request.resource.data.createdAt != null;
+      
+      // Only the admin can read, update or delete messages
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
