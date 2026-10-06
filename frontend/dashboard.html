@@ -37,9 +37,7 @@
         <button class="icon-btn" onclick="downloadReport()" title="Download PDF Report"><i class="ti ti-download"></i></button>
         <button class="icon-btn" onclick="refreshAll()" title="Refresh data"><i class="ti ti-refresh"></i></button>
         <button class="icon-btn" onclick="openSettings()" title="Settings"><i class="ti ti-settings"></i></button>
-        <a href="javascript:void(0)" onclick="localStorage.removeItem('bwe_token'); window.location.href='/login.html';" style="text-decoration:none">
-          <button class="icon-btn danger" title="Sign out"><i class="ti ti-logout"></i></button>
-        </a>
+        
       </div>
       <div class="avatar" id="userAvatar" title="Logged in user">A</div>
     </div>
@@ -56,9 +54,7 @@
       <button class="icon-btn" onclick="downloadReport()" title="Download PDF Report"><i class="ti ti-download"></i></button>
       <button class="icon-btn" onclick="refreshAll()" title="Refresh data"><i class="ti ti-refresh"></i></button>
       <button class="icon-btn" onclick="openSettings()" title="Settings"><i class="ti ti-settings"></i></button>
-      <a href="javascript:void(0)" onclick="localStorage.removeItem('bwe_token'); window.location.href='/login.html';" style="text-decoration:none">
-        <button class="icon-btn danger" title="Sign out"><i class="ti ti-logout"></i></button>
-      </a>
+      
     </div>
     <span class="nav-item active" data-tab="overview" onclick="setTab('overview'); toggleMobileMenu(false);">
       <i class="ti ti-layout-dashboard"></i> Overview
@@ -1317,3 +1313,4 @@ async function applyLicenseKey() {
 </script>
 </body>
 </html>
+

@@ -113,11 +113,7 @@ const req = async (path, opts = {}) => {
       opts.headers = { ...opts.headers, 'X-Session-Token': token };
     }
     const res = await fetch(API + path, opts);
-    if (res.status === 401) {
-      localStorage.removeItem('bwe_token');
-      window.location.href = '/login.html';
-      return null;
-    }
+    
     return await res.json();
   } catch (e) { return null; }
 };
@@ -2485,3 +2481,4 @@ async function exportLogs() {
   a.click();
   toast('Logs exported successfully!', 'success');
 }
+
